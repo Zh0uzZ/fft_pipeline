@@ -242,7 +242,7 @@ module data_redistribute #(
         {temp_output_real[25] , temp_output_real[27] , temp_output_real[29] , temp_output_real[31]} = vector_output_real_7;
       end
 
-      end
+      
     endcase
   end
 

@@ -65,7 +65,7 @@ module top_control #(
     end
   endgenerate
 
-
+//计数方式判断
 
 
   always @(posedge clk or negedge rst) begin

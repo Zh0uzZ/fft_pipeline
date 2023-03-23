@@ -24,34 +24,13 @@ module complexhadamard #(
   localparam DONE = 3'b110;
 
 
-
-  genvar j;
-  reg  [                          3:0] i;
-  reg  [                          2:0] current_state;
-  reg  [                          2:0] next_state;
-  wire [              formatWidth-1:0] sfp_real          [7:0];
-  wire [              formatWidth-1:0] sfp_imag          [7:0];
-  reg  [            formatWidth*8-1:0] sfp_real_reg;
-  reg  [            formatWidth*8-1:0] sfp_imag_reg;
-  wire [                 expWidth-1:0] max_exp           [7:0];
-  wire [               expWidth*2-1:0] exp_offset_num    [7:0];
-  reg  [               expWidth*2-1:0] exp_offset_num_reg[7:0];
-  wire [(sigWidth+4+low_expand)*2-1:0] man_off           [7:0];
-  reg  [(sigWidth+4+low_expand)*2-1:0] man_off_reg       [7:0];
-  wire [    sigWidth+3+low_expand : 0] adder_num         [7:0];
-  reg  [    sigWidth+3+low_expand : 0] adder_num_reg     [7:0];
-  wire [              formatWidth-1:0] sfpout            [7:0];
-
-
-
-
   //debug signals 
-  wire [              formatWidth-1:0] wire_input_real   [3:0];
-  wire [              formatWidth-1:0] wire_input_imag   [3:0];
-  wire [              formatWidth-1:0] wire_output_real  [3:0];
-  wire [              formatWidth-1:0] wire_output_imag  [3:0];
-  wire [              formatWidth-1:0] wire_twiddle_real [3:0];
-  wire [              formatWidth-1:0] wire_twiddle_imag [3:0];
+  wire [formatWidth-1:0] wire_input_real   [3:0];
+  wire [formatWidth-1:0] wire_input_imag   [3:0];
+  wire [formatWidth-1:0] wire_output_real  [3:0];
+  wire [formatWidth-1:0] wire_output_imag  [3:0];
+  wire [formatWidth-1:0] wire_twiddle_real [3:0];
+  wire [formatWidth-1:0] wire_twiddle_imag [3:0];
   genvar k;
   generate
     for (k = 0; k < 4; k = k + 1) begin
@@ -67,10 +46,25 @@ module complexhadamard #(
 
 
 
+  genvar j;
+  reg  [                          3:0] i;
+  wire [              formatWidth-1:0] sfp_real          [7:0];
+  wire [              formatWidth-1:0] sfp_imag          [7:0];
+  reg  [            formatWidth*8-1:0] sfp_real_reg;
+  reg  [            formatWidth*8-1:0] sfp_imag_reg;
+
+  wire [               expWidth*2-1:0] exp_offset_num    [7:0];
+  reg  [               expWidth*2-1:0] exp_offset_num_reg[7:0];
+
+  wire [(sigWidth+4+low_expand)*2-1:0] man_off           [7:0];
+  reg  [(sigWidth+4+low_expand)*2-1:0] man_off_reg       [7:0];
+
+  wire [    sigWidth+3+low_expand : 0] adder_num         [7:0];
+  reg  [    sigWidth+3+low_expand : 0] adder_num_reg     [7:0];
+  wire [              formatWidth-1:0] sfpout            [7:0];
 
   always @(posedge clk or negedge rst) begin
     if (~rst) begin
-      current_state <= 0;
       sfp_real_reg  <= 0;
       sfp_imag_reg  <= 0;
       output_real   <= 0;
@@ -82,72 +76,44 @@ module complexhadamard #(
       end
 
     end else begin
-      current_state <= next_state;
+      sfp_real_reg <= {
+        sfp_real[7],
+        sfp_real[6],
+        sfp_real[5],
+        sfp_real[4],
+        sfp_real[3],
+        sfp_real[2],
+        sfp_real[1],
+        sfp_real[0]
+      };
+      sfp_imag_reg <= {
+        sfp_imag[7],
+        sfp_imag[6],
+        sfp_imag[5],
+        sfp_imag[4],
+        sfp_imag[3],
+        sfp_imag[2],
+        sfp_imag[1],
+        sfp_imag[0]
+      };
+
+      for (i = 0; i < 8; i = i + 1) begin
+        exp_offset_num_reg[i] <= exp_offset_num[i];
+      end
+
+      for (i = 0; i < 8; i = i + 1) begin
+        man_off_reg[i] = man_off[i];
+      end
+
+      for (i = 0; i < 8; i = i + 1) begin
+        adder_num_reg[i] <= adder_num[i];
+      end
+
+      output_real <= {sfpout[3], sfpout[2], sfpout[1], sfpout[0]};
+      output_imag <= {sfpout[7], sfpout[6], sfpout[5], sfpout[4]};
+
     end
   end
-
-  always @(*) begin
-    case (current_state)
-      IDLE: begin
-        if (start) begin
-          next_state = SFP_MULTIPLY;
-        end else begin
-          next_state = IDLE;
-        end
-        hadamard_done = 0;
-      end
-      SFP_MULTIPLY: begin
-        sfp_real_reg = {
-          sfp_real[7],
-          sfp_real[6],
-          sfp_real[5],
-          sfp_real[4],
-          sfp_real[3],
-          sfp_real[2],
-          sfp_real[1],
-          sfp_real[0]
-        };
-        sfp_imag_reg = {
-          sfp_imag[7],
-          sfp_imag[6],
-          sfp_imag[5],
-          sfp_imag[4],
-          sfp_imag[3],
-          sfp_imag[2],
-          sfp_imag[1],
-          sfp_imag[0]
-        };
-        next_state = EXP_NORMALIZER;
-      end
-      EXP_NORMALIZER: begin
-        for (i = 0; i < 8; i = i + 1) begin
-          exp_offset_num_reg[i] = exp_offset_num[i];
-        end
-        next_state = MANTISSA_OFF;
-      end
-      MANTISSA_OFF: begin
-        for (i = 0; i < 8; i = i + 1) begin
-          man_off_reg[i] = man_off[i];
-        end
-        next_state = ADDER;
-      end
-      ADDER: begin
-        for (i = 0; i < 8; i = i + 1) begin
-          adder_num_reg[i] = adder_num[i];
-        end
-        next_state = FIX2SFP;
-      end
-      FIX2SFP: begin
-        output_real = {sfpout[3], sfpout[2], sfpout[1], sfpout[0]};
-        output_imag = {sfpout[7], sfpout[6], sfpout[5], sfpout[4]};
-        hadamard_done = 1;
-        next_state = IDLE;
-      end
-
-    endcase
-  end
-
-
 
   //sfp相乘，输入与twiddle factor相乘
   generate
@@ -205,6 +171,7 @@ module complexhadamard #(
 
 
   // 指数找到最大值以及算出偏移量
+  wire [expWidth-1:0] max_exp [7:0];
   generate
     for (j = 0; j < 4; j = j + 1) begin : u0_exp_normalizer
       exp_normalizer_2 #(

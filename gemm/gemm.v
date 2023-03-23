@@ -24,41 +24,13 @@ module gemm #(
   localparam FIX2SFP = 3'b101;  //对sfp数字进行指数、尾数的拼接
 
 
-
-  reg  [                          3:0] i;
-  reg  [                          2:0] current_state;
-  reg  [                          2:0] next_state;
-  wire [               (expWidth-1):0] max_exp             [3:0];
-  wire [             (expWidth*4-1):0] exp_offset_num      [3:0];
-  reg  [             (expWidth*4-1):0] exp_offset_num_reg  [3:0];
-  wire [(sigWidth+4+low_expand)*4-1:0] man_off             [3:0];
-  reg  [(sigWidth+4+low_expand)*4-1:0] man_off_reg         [3:0];
-  wire [(sigWidth+4+low_expand)*4-1:0] adder_num           [7:0];
-  reg  [(sigWidth+4+low_expand)*4-1:0] adder_num_reg       [7:0];
-
-  wire [    sigWidth+4+low_expand-1:0] mantissa            [7:0];
-  reg  [    sigWidth+4+low_expand-1:0] mantissa_reg        [7:0];
-  wire [                          7:0] sign;
-  reg  [                          7:0] sign_reg;
-  wire [               4*expWidth-1:0] exp_normalizer_input[3:0];
-  wire [                          3:0] man_shifter_sign    [3:0];
-  wire [               4*sigWidth-1:0] man_shifter_input   [3:0];
-
-  wire [                          3:0] complement_sign     [7:0];
-  wire [              formatWidth-1:0] sfpout              [7:0];
-
-
-
-
-
-
   //debug signals 
-  wire [              formatWidth-1:0] wire_input_real     [3:0];
-  wire [              formatWidth-1:0] wire_input_imag     [3:0];
-  wire [              formatWidth-1:0] wire_output_real    [3:0];
-  wire [              formatWidth-1:0] wire_output_imag    [3:0];
-  wire [              formatWidth-1:0] wire_twiddle_real   [3:0];
-  wire [              formatWidth-1:0] wire_twiddle_imag   [3:0];
+  wire [formatWidth-1:0] wire_input_real     [3:0];
+  wire [formatWidth-1:0] wire_input_imag     [3:0];
+  wire [formatWidth-1:0] wire_output_real    [3:0];
+  wire [formatWidth-1:0] wire_output_imag    [3:0];
+  wire [formatWidth-1:0] wire_twiddle_real   [3:0];
+  wire [formatWidth-1:0] wire_twiddle_imag   [3:0];
   genvar j;
   generate
     for (j = 0; j < 4; j = j + 1) begin
@@ -73,10 +45,23 @@ module gemm #(
 
 
 
-  //state machine state change 状态机状态变化
+  reg  [                          3:0] i;
+  wire [             (expWidth*4-1):0] exp_offset_num      [3:0];
+  reg  [             (expWidth*4-1):0] exp_offset_num_reg  [3:0];
+  wire [(sigWidth+4+low_expand)*4-1:0] man_off             [3:0];
+  reg  [(sigWidth+4+low_expand)*4-1:0] man_off_reg         [3:0];
+  wire [(sigWidth+4+low_expand)*4-1:0] adder_num           [7:0];
+  reg  [(sigWidth+4+low_expand)*4-1:0] adder_num_reg       [7:0];
+
+  wire [    sigWidth+4+low_expand-1:0] mantissa            [7:0];
+  reg  [    sigWidth+4+low_expand-1:0] mantissa_reg        [7:0];
+
+  wire [              formatWidth-1:0] sfpout              [7:0];
+
+//触发器数据
+
   always @(posedge clk or negedge rst) begin
     if (!rst) begin
-      current_state <= IDLE;
       for (i = 0; i < 4; i = i + 1) begin
         exp_offset_num_reg[i] <= {(expWidth * 4) {1'b0}};
       end
@@ -91,77 +76,36 @@ module gemm #(
       end
       output_real <= 36'b0;
       output_imag <= 36'b0;
-      sign_reg <= 8'b0;
-
     end else begin
-      current_state <= next_state;
+      for (i = 0; i < 4; i = i + 1) begin
+        exp_offset_num_reg[i] <= exp_offset_num[i];
+      end
+
+      for (i = 0; i < 4; i = i + 1) begin
+        man_off_reg[i] <= man_off[i];
+      end
+
+      for (i = 0; i < 8; i = i + 1) begin
+        adder_num_reg[i] <= adder_num[i];
+      end
+
+      for (i = 0; i < 8; i = i + 1) begin
+        mantissa_reg[i] <= mantissa[i];
+      end
+
+      begin
+        output_real <= {sfpout[0], sfpout[1], sfpout[2], sfpout[3]};
+        output_imag <= {sfpout[4], sfpout[5], sfpout[6], sfpout[7]};
+      end
+
     end
   end
 
-
-
-  //状态中变量的赋值
-  always @(*) begin
-    case (current_state)
-      IDLE: begin
-        if (start) begin
-          next_state = EXPONENT_NORMALIZE;
-        end else begin
-          next_state = IDLE;
-        end
-        gemm_done = 0;
-      end
-      EXPONENT_NORMALIZE: begin
-        begin
-          next_state = MANTISSA_OFFSET;
-          for (i = 0; i < 4; i = i + 1) begin
-            exp_offset_num_reg[i] = exp_offset_num[i];
-          end
-        end
-      end
-      MANTISSA_OFFSET: begin
-        begin
-          next_state = COMPLEMENT;
-          for (i = 0; i < 4; i = i + 1) begin
-            man_off_reg[i] = man_off[i];
-          end
-        end
-      end
-      COMPLEMENT: begin
-        begin
-          next_state = ADDER;
-          for (i = 0; i < 8; i = i + 1) begin
-            adder_num_reg[i] = adder_num[i];
-          end
-        end
-      end
-      ADDER: begin
-        begin
-          next_state = FIX2SFP;
-          for (i = 0; i < 8; i = i + 1) begin
-            mantissa_reg[i] = mantissa[i];
-          end
-        end
-      end
-      FIX2SFP: begin
-        begin
-          next_state  = IDLE;
-          output_real = {sfpout[0], sfpout[1], sfpout[2], sfpout[3]};
-          output_imag = {sfpout[4], sfpout[5], sfpout[6], sfpout[7]};
-          gemm_done   = 1;
-        end
-      end
-      default: begin
-        next_state = IDLE;
-      end
-    endcase
-  end
-
-
-
-
   //找出最大指数值，并进行尾数移位
   //第一个指数对齐module
+  wire [4*expWidth-1:0] exp_normalizer_input [3:0];
+  wire [(expWidth-1):0] max_exp              [3:0];
+
   assign exp_normalizer_input[0] = control ? {
       input_real[(formatWidth*4-2):(formatWidth*4-1-expWidth)],
       input_real[(formatWidth*3-2):(formatWidth*3-1-expWidth)],
@@ -241,6 +185,8 @@ module gemm #(
 
 
   //根据max_exp 求得mantissa移位结果
+  wire [           3:0] man_shifter_sign    [3:0];
+  wire [4*sigWidth-1:0] man_shifter_input   [3:0];
 
   assign man_shifter_sign[0] = control ? {
       input_real[formatWidth*4-1],
@@ -374,6 +320,7 @@ module gemm #(
 
   //求出adder_4in的加数
 
+  wire [3:0] complement_sign     [7:0];
   assign complement_sign[0] = control ? 4'b0000 : 4'b0000;
   complement #(
       .sigWidth  (sigWidth),
