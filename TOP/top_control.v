@@ -20,6 +20,10 @@ module top_control #(
 
   localparam vector_length = 4 * formatWidth;
 
+  wire [formatWidth-1:0] input_real_wire [0:31];
+  wire [formatWidth-1:0] input_imag_wire [0:31];
+  wire [formatWidth-1:0] twiddle_real_wire [0:31];
+  wire [formatWidth-1:0] twiddle_imag_wire [0:31];
 
 
   reg                      vector_start;
