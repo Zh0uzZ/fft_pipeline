@@ -40,9 +40,16 @@ module toptb;
 
 
 
+//read data from data txt
+  integer hand_input;
   reg [formatWidth-1:0] input_data[0:1000];
   initial begin
-    $readmemh("out.txt" , input_data);
+    hand_input = $fopen("out.txt" , "r");
+    for(integer j=0;j<400;j=j+1) begin
+      $fscanf(hand_input , "%0d" , input_data[j]);
+    end
+    fclose(hand_input);
+    // $readmemh("out.txt" , input_data);
   end
 
   initial begin
@@ -114,117 +121,41 @@ module toptb;
   reg [formatWidth*32-1:0] vector_input_imag;
 
   reg [2:0] count_i;
-  // genvar vector_i;
-  // generate
-  //   for(vector_i = 0 ; vector_i < 3 ; vector_i = vector_i + 1)
-  //   begin : vector_data
       always@(posedge clk or negedge rst) begin
         if(~fft_start) begin
           count_i <= 0;
         end
         else begin
           count_i <= count_i + 1;
-          if(fft_start & ~count_i) begin
-            vector_input_real <= {input_data[0],input_data[1],input_data[2],input_data[3],input_data[4],
-            input_data[5],input_data[6],input_data[7],input_data[8],input_data[9],input_data[10],input_data[11],
-            input_data[12],input_data[13],input_data[14],input_data[15],input_data[16],input_data[17],input_data[18],
-            input_data[19],input_data[20],input_data[21],input_data[22],input_data[23],input_data[24],input_data[25],
-            input_data[26],input_data[27],input_data[28+count_i*32],input_data[29],input_data[30],input_data[31]};
+          if(fft_start) begin
+            vector_input_real <= {input_data[0+64*count_i],input_data[1+64*count_i],input_data[2+64*count_i],input_data[3+64*count_i],input_data[4+64*count_i],
+            input_data[5+64*count_i],input_data[6+64*count_i],input_data[7+64*count_i],input_data[8+64*count_i],input_data[9+64*count_i],input_data[10+64*count_i],input_data[11+64*count_i],
+            input_data[12+64*count_i],input_data[13+64*count_i],input_data[14+64*count_i],input_data[15+64*count_i],input_data[16+64*count_i],input_data[17+64*count_i],input_data[18+64*count_i],
+            input_data[19+64*count_i],input_data[20+64*count_i],input_data[21+64*count_i],input_data[22+64*count_i],input_data[23+64*count_i],input_data[24+64*count_i],input_data[25+64*count_i],
+            input_data[26+64*count_i],input_data[27+64*count_i],input_data[28+64*count_i],input_data[29+64*count_i],input_data[30+64*count_i],input_data[31+64*count_i]};
 
-            vector_input_imag <= {input_data[0+32],input_data[1+32],input_data[2+32],input_data[3+32],input_data[4+32],
-            input_data[5+32],input_data[6+32],input_data[7+32],input_data[8+32],input_data[9+32],input_data[10+32],input_data[11+32],
-            input_data[12+32],input_data[13+32],input_data[14+32],input_data[15+32],input_data[16+32],input_data[17+32],input_data[18+32],
-            input_data[19+32],input_data[20+32],input_data[21+32],input_data[22+32],input_data[23+32],input_data[24+32],input_data[25+32],
-            input_data[26+32],input_data[27+32],input_data[28+32],input_data[29+32],input_data[30+32],input_data[31+32]};
-          end else if(count_i == 1) begin
-            vector_input_real <= {input_data[0+64],input_data[1+64],input_data[2+64],input_data[3+64],input_data[4+64],
-            input_data[5+64],input_data[6+64],input_data[7+64],input_data[8+64],input_data[9+64],input_data[10+64],input_data[11+64],
-            input_data[12+64],input_data[13+64],input_data[14+64],input_data[15+64],input_data[16+64],input_data[17+64],input_data[18+64],
-            input_data[19+64],input_data[20+64],input_data[21+64],input_data[22+64],input_data[23+64],input_data[24+64],input_data[25+64],
-            input_data[26+64],input_data[27+64],input_data[28+64*count_i],input_data[29+64],input_data[30+64],input_data[31+64]};
-
-            vector_input_imag <= {input_data[0+32+64],input_data[1+32+64],input_data[2+32+64],input_data[3+32+64],input_data[4+32+64],
-            input_data[5+32+64],input_data[6+32+64],input_data[7+32+64],input_data[8+32+64],input_data[9+32+64],input_data[10+32+64],input_data[11+32+64],
-            input_data[12+32+64],input_data[13+32+64],input_data[14+32+64],input_data[15+32+64],input_data[16+32+64],input_data[17+32+64],input_data[18+32+64],
-            input_data[19+32+64],input_data[20+32+64],input_data[21+32+64],input_data[22+32+64],input_data[23+32+64],input_data[24+32+64],input_data[25+32+64],
-            input_data[26+32+64],input_data[27+32+64],input_data[28+32+64],input_data[29+32+64],input_data[30+32+64],input_data[31+32+64]};
-          end else if(count_i == 2) begin
-            vector_input_real <= {input_data[0+64+64],input_data[1+64+64],input_data[2+64+64],input_data[3+64+64],input_data[4+64+64],
-            input_data[5+64+64],input_data[6+64+64],input_data[7+64+64],input_data[8+64+64],input_data[9+64+64],input_data[10+64+64],input_data[11+64+64],
-            input_data[12+64+64],input_data[13+64+64],input_data[14+64+64],input_data[15+64+64],input_data[16+64+64],input_data[17+64+64],input_data[18+64+64],
-            input_data[19+64+64],input_data[20+64+64],input_data[21+64+64],input_data[22+64+64],input_data[23+64+64],input_data[24+64+64],input_data[25+64+64],
-            input_data[26+64+64],input_data[27+64+64],input_data[28+64+64],input_data[29+64+64],input_data[30+64+64],input_data[31+64+64]};
-
-            vector_input_imag <= {input_data[0+32+64+64],input_data[1+32+64+64],input_data[2+32+64+64],input_data[3+32+64+64],input_data[4+32+64+64],
-            input_data[5+32+64+64],input_data[6+32+64+64],input_data[7+32+64+64],input_data[8+32+64+64],input_data[9+32+64+64],input_data[10+32+64+64],input_data[11+32+64+64],
-            input_data[12+32+64+64],input_data[13+32+64+64],input_data[14+32+64+64],input_data[15+32+64+64],input_data[16+32+64+64],input_data[17+32+64+64],input_data[18+32+64+64],
-            input_data[19+32+64+64],input_data[20+32+64+64],input_data[21+32+64+64],input_data[22+32+64+64],input_data[23+32+64+64],input_data[24+32+64+64],input_data[25+32+64+64],
-            input_data[26+32+64+64],input_data[27+32+64+64],input_data[28+32+64+64],input_data[29+32+64+64],input_data[30+32+64+64],input_data[31+32+64+64]};
-          end else if(count_i == 3) begin
-            vector_input_real <= {input_data[0+64+64+64],input_data[1+64+64+64],input_data[2+64+64+64],input_data[3+64+64+64],input_data[4+64+64+64],
-            input_data[5+64+64+64],input_data[6+64+64+64],input_data[7+64+64+64],input_data[8+64+64+64],input_data[9+64+64+64],input_data[10+64+64+64],input_data[11+64+64+64],
-            input_data[12+64+64+64],input_data[13+64+64+64],input_data[14+64+64+64],input_data[15+64+64+64],input_data[16+64+64+64],input_data[17+64+64+64],input_data[18+64+64+64],
-            input_data[19+64+64+64],input_data[20+64+64+64],input_data[21+64+64+64],input_data[22+64+64+64],input_data[23+64+64+64],input_data[24+64+64+64],input_data[25+64+64+64],
-            input_data[26+64+64+64],input_data[27+64+64+64],input_data[28+64+64+64],input_data[29+64+64+64],input_data[30+64+64+64],input_data[31+64+64+64]};
-
-            vector_input_imag <= {input_data[0+32+64+64+64],input_data[1+32+64+64+64],input_data[2+32+64+64+64],input_data[3+32+64+64+64],input_data[4+32+64+64+64],
-            input_data[5+32+64+64+64],input_data[6+32+64+64+64],input_data[7+32+64+64+64],input_data[8+32+64+64+64],input_data[9+32+64+64+64],input_data[10+32+64+64+64],input_data[11+32+64+64+64],
-            input_data[12+32+64+64+64],input_data[13+32+64+64+64],input_data[14+32+64+64+64],input_data[15+32+64+64+64],input_data[16+32+64+64+64],input_data[17+32+64+64+64],input_data[18+32+64+64+64],
-            input_data[19+32+64+64+64],input_data[20+32+64+64+64],input_data[21+32+64+64+64],input_data[22+32+64+64+64],input_data[23+32+64+64+64],input_data[24+32+64+64+64],input_data[25+32+64+64+64],
-            input_data[26+32+64+64+64],input_data[27+32+64+64+64],input_data[28+32+64+64+64],input_data[29+32+64+64+64],input_data[30+32+64+64+64],input_data[31+32+64+64+64]};
-          end else if(count_i == 4) begin
-            vector_input_real <= {input_data[0+64+64+64+64],input_data[1+64+64+64+64],input_data[2+64+64+64+64],input_data[3+64+64+64+64],input_data[4+64+64+64+64],
-            input_data[5+64+64+64+64],input_data[6+64+64+64+64],input_data[7+64+64+64+64],input_data[8+64+64+64+64],input_data[9+64+64+64+64],input_data[10+64+64+64+64],input_data[11+64+64+64+64],
-            input_data[12+64+64+64+64],input_data[13+64+64+64+64],input_data[14+64+64+64+64],input_data[15+64+64+64+64],input_data[16+64+64+64+64],input_data[17+64+64+64+64],input_data[18+64+64+64+64],
-            input_data[19+64+64+64+64],input_data[20+64+64+64+64],input_data[21+64+64+64+64],input_data[22+64+64+64+64],input_data[23+64+64+64+64],input_data[24+64+64+64+64],input_data[25+64+64+64+64],
-            input_data[26+64+64+64+64],input_data[27+64+64+64+64],input_data[28+64+64+64+64],input_data[29+64+64+64+64],input_data[30+64+64+64+64],input_data[31+64+64+64+64]};
-
-            vector_input_imag <= {input_data[0+32+64+64+64+64],input_data[1+32+64+64+64+64],input_data[2+32+64+64+64+64],input_data[3+32+64+64+64+64],input_data[4+32+64+64+64+64],
-            input_data[5+32+64+64+64+64],input_data[6+32+64+64+64+64],input_data[7+32+64+64+64+64],input_data[8+32+64+64+64+64],input_data[9+32+64+64+64+64],input_data[10+32+64+64+64+64],input_data[11+32+64+64+64+64],
-            input_data[12+32+64+64+64+64],input_data[13+32+64+64+64+64],input_data[14+32+64+64+64+64],input_data[15+32+64+64+64+64],input_data[16+32+64+64+64+64],input_data[17+32+64+64+64+64],input_data[18+32+64+64+64+64],
-            input_data[19+32+64+64+64+64],input_data[20+32+64+64+64+64],input_data[21+32+64+64+64+64],input_data[22+32+64+64+64+64],input_data[23+32+64+64+64+64],input_data[24+32+64+64+64+64],input_data[25+32+64+64+64+64],
-            input_data[26+32+64+64+64+64],input_data[27+32+64+64+64+64],input_data[28+32+64+64+64+64],input_data[29+32+64+64+64+64],input_data[30+32+64+64+64+64],input_data[31+32+64+64+64+64]};
-          end else if(count_i == 5) begin
-            vector_input_real <= {input_data[0+64+64+64+64+64],input_data[1+64+64+64+64+64],input_data[2+64+64+64+64+64],input_data[3+64+64+64+64+64],input_data[4+64+64+64+64+64],
-            input_data[5+64+64+64+64+64],input_data[6+64+64+64+64+64],input_data[7+64+64+64+64+64],input_data[8+64+64+64+64+64],input_data[9+64+64+64+64+64],input_data[10+64+64+64+64+64],input_data[11+64+64+64+64+64],
-            input_data[12+64+64+64+64+64],input_data[13+64+64+64+64+64],input_data[14+64+64+64+64+64],input_data[15+64+64+64+64+64],input_data[16+64+64+64+64+64],input_data[17+64+64+64+64+64],input_data[18+64+64+64+64+64],
-            input_data[19+64+64+64+64+64],input_data[20+64+64+64+64+64],input_data[21+64+64+64+64+64],input_data[22+64+64+64+64+64],input_data[23+64+64+64+64+64],input_data[24+64+64+64+64+64],input_data[25+64+64+64+64+64],
-            input_data[26+64+64+64+64+64],input_data[27+64+64+64+64+64],input_data[28+64+64+64+64+64],input_data[29+64+64+64+64+64],input_data[30+64+64+64+64+64],input_data[31+64+64+64+64+64]};
-
-            vector_input_imag <= {input_data[0+32+64+64+64+64+64],input_data[1+32+64+64+64+64+64],input_data[2+32+64+64+64+64+64],input_data[3+32+64+64+64+64+64],input_data[4+32+64+64+64+64+64],
-            input_data[5+32+64+64+64+64+64],input_data[6+32+64+64+64+64+64],input_data[7+32+64+64+64+64+64],input_data[8+32+64+64+64+64+64],input_data[9+32+64+64+64+64+64],input_data[10+32+64+64+64+64+64],input_data[11+32+64+64+64+64+64],
-            input_data[12+32+64+64+64+64+64],input_data[13+32+64+64+64+64+64],input_data[14+32+64+64+64+64+64],input_data[15+32+64+64+64+64+64],input_data[16+32+64+64+64+64+64],input_data[17+32+64+64+64+64+64],input_data[18+32+64+64+64+64+64],
-            input_data[19+32+64+64+64+64+64],input_data[20+32+64+64+64+64+64],input_data[21+32+64+64+64+64+64],input_data[22+32+64+64+64+64+64],input_data[23+32+64+64+64+64+64],input_data[24+32+64+64+64+64+64],input_data[25+32+64+64+64+64+64],
-            input_data[26+32+64+64+64+64+64],input_data[27+32+64+64+64+64+64],input_data[28+32+64+64+64+64+64],input_data[29+32+64+64+64+64+64],input_data[30+32+64+64+64+64+64],input_data[31+32+64+64+64+64+64]};
-
+            vector_input_imag <= {input_data[0+32+64*count_i],input_data[1+32+64*count_i],input_data[2+32+64*count_i],input_data[3+32+64*count_i],input_data[4+32+64*count_i],
+            input_data[5+32+64*count_i],input_data[6+32+64*count_i],input_data[7+32+64*count_i],input_data[8+32+64*count_i],input_data[9+32+64*count_i],input_data[10+32+64*count_i],input_data[11+32+64*count_i],
+            input_data[12+32+64*count_i],input_data[13+32+64*count_i],input_data[14+32+64*count_i],input_data[15+32+64*count_i],input_data[16+32+64*count_i],input_data[17+32+64*count_i],input_data[18+32+64*count_i],
+            input_data[19+32+64*count_i],input_data[20+32+64*count_i],input_data[21+32+64*count_i],input_data[22+32+64*count_i],input_data[23+32+64*count_i],input_data[24+32+64*count_i],input_data[25+32+64*count_i],
+            input_data[26+32+64*count_i],input_data[27+32+64*count_i],input_data[28+32+64*count_i],input_data[29+32+64*count_i],input_data[30+32+64*count_i],input_data[31+32+64*count_i]};
+          end
+          if(count_i == 5)
+            count_i <= 0;
           end
         end
-      end
+
+
 
 // debug input_real and input_imag
-    // assign {input_real[0],input_real[1],input_real[2],input_real[3],input_real[4],input_real[5],input_real[6],
-    // input_real[7],input_real[8],input_real[9],input_real[10],input_real[11],input_real[12],input_real[13],
-    // input_real[14],input_real[15],input_real[16],input_real[17],input_real[18],input_real[19],input_real[20],
-    // input_real[21],input_real[22],input_real[23],input_real[24],input_real[25],input_real[26],input_real[27],
-    // input_real[28],input_real[29],input_real[30],input_real[31]}=
-    // {vector_input_real[0],vector_input_real[1],vector_input_real[2],vector_input_real[3],vector_input_real[4],vector_input_real[5],vector_input_real[6],
-    // vector_input_real[7],vector_input_real[8],vector_input_real[9],vector_input_real[10],vector_input_real[11],vector_input_real[12],vector_input_real[13],
-    // vector_input_real[14],vector_input_real[15],vector_input_real[16],vector_input_real[17],vector_input_real[18],vector_input_real[19],vector_input_real[20],
-    // vector_input_real[21],vector_input_real[22],vector_input_real[23],vector_input_real[24],vector_input_real[25],vector_input_real[26],vector_input_real[27],
-    // vector_input_real[28],vector_input_real[29],vector_input_real[30],vector_input_real[31]};
+    genvar k;
+    generate
+      for(k=0;k<32;k=k+1) begin : debug_input
+      assign  input_real[k] = vector_input_real[formatWidth*(k+1)-1:formatWidth*k];
+      assign  input_imag[k] = vector_input_imag[formatWidth*(k+1)-1:formatWidth*k];
+      end
+    endgenerate
 
-    // assign {input_imag[0],input_imag[1],input_imag[2],input_imag[3],input_imag[4],input_imag[5],input_imag[6],
-    // input_imag[7],input_imag[8],input_imag[9],input_imag[10],input_imag[11],input_imag[12],input_imag[13],
-    // input_imag[14],input_imag[15],input_imag[16],input_imag[17],input_imag[18],input_imag[19],input_imag[20],
-    // input_imag[21],input_imag[22],input_imag[23],input_imag[24],input_imag[25],input_imag[26],input_imag[27],
-    // input_imag[28],input_imag[29],input_imag[30],input_imag[31]}=
-    // {vector_input_imag[0],vector_input_imag[1],vector_input_imag[2],vector_input_imag[3],vector_input_imag[4],vector_input_imag[5],vector_input_imag[6],
-    // vector_input_imag[7],vector_input_imag[8],vector_input_imag[9],vector_input_imag[10],vector_input_imag[11],vector_input_imag[12],vector_input_imag[13],
-    // vector_input_imag[14],vector_input_imag[15],vector_input_imag[16],vector_input_imag[17],vector_input_imag[18],vector_input_imag[19],vector_input_imag[20],
-    // vector_input_imag[21],vector_input_imag[22],vector_input_imag[23],vector_input_imag[24],vector_input_imag[25],vector_input_imag[26],vector_input_imag[27],
-    // vector_input_imag[28],vector_input_imag[29],vector_input_imag[30],vector_input_imag[31]};
-  //   end
-  // endgenerate
   
   wire [formatWidth*32-1:0] output_real_all;
   wire [formatWidth*32-1:0] output_imag_all;
@@ -250,73 +181,15 @@ module toptb;
       .fft_start(fft_start),
       .input_real(vector_input_real),
       .input_imag(vector_input_imag),
-      .twiddle_real({
-        twiddle_real[31],
-        twiddle_real[30],
-        twiddle_real[29],
-        twiddle_real[28],
-        twiddle_real[27],
-        twiddle_real[26],
-        twiddle_real[25],
-        twiddle_real[24],
-        twiddle_real[23],
-        twiddle_real[22],
-        twiddle_real[21],
-        twiddle_real[20],
-        twiddle_real[19],
-        twiddle_real[18],
-        twiddle_real[17],
-        twiddle_real[16],
-        twiddle_real[15],
-        twiddle_real[14],
-        twiddle_real[13],
-        twiddle_real[12],
-        twiddle_real[11],
-        twiddle_real[10],
-        twiddle_real[9],
-        twiddle_real[8],
-        twiddle_real[7],
-        twiddle_real[6],
-        twiddle_real[5],
-        twiddle_real[4],
-        twiddle_real[3],
-        twiddle_real[2],
-        twiddle_real[1],
-        twiddle_real[0]
+      .twiddle_real({twiddle_real[31],twiddle_real[30],twiddle_real[29],twiddle_real[28],twiddle_real[27],twiddle_real[26],twiddle_real[25],twiddle_real[24],twiddle_real[23],
+      twiddle_real[22],twiddle_real[21],twiddle_real[20],twiddle_real[19],twiddle_real[18],twiddle_real[17],twiddle_real[16],twiddle_real[15],twiddle_real[14],twiddle_real[13],
+      twiddle_real[12],twiddle_real[11],twiddle_real[10],twiddle_real[9],twiddle_real[8],twiddle_real[7],twiddle_real[6],twiddle_real[5],twiddle_real[4],twiddle_real[3],
+      twiddle_real[2],twiddle_real[1],twiddle_real[0]
       }),
-      .twiddle_imag({
-        twiddle_imag[31],
-        twiddle_imag[30],
-        twiddle_imag[29],
-        twiddle_imag[28],
-        twiddle_imag[27],
-        twiddle_imag[26],
-        twiddle_imag[25],
-        twiddle_imag[24],
-        twiddle_imag[23],
-        twiddle_imag[22],
-        twiddle_imag[21],
-        twiddle_imag[20],
-        twiddle_imag[19],
-        twiddle_imag[18],
-        twiddle_imag[17],
-        twiddle_imag[16],
-        twiddle_imag[15],
-        twiddle_imag[14],
-        twiddle_imag[13],
-        twiddle_imag[12],
-        twiddle_imag[11],
-        twiddle_imag[10],
-        twiddle_imag[9],
-        twiddle_imag[8],
-        twiddle_imag[7],
-        twiddle_imag[6],
-        twiddle_imag[5],
-        twiddle_imag[4],
-        twiddle_imag[3],
-        twiddle_imag[2],
-        twiddle_imag[1],
-        twiddle_imag[0]
+      .twiddle_imag({twiddle_imag[31],twiddle_imag[30],twiddle_imag[29],twiddle_imag[28],twiddle_imag[27],twiddle_imag[26],twiddle_imag[25],twiddle_imag[24],twiddle_imag[23],
+      twiddle_imag[22],twiddle_imag[21],twiddle_imag[20],twiddle_imag[19],twiddle_imag[18],twiddle_imag[17],twiddle_imag[16],twiddle_imag[15],twiddle_imag[14],twiddle_imag[13],
+      twiddle_imag[12],twiddle_imag[11],twiddle_imag[10],twiddle_imag[9],twiddle_imag[8],twiddle_imag[7],twiddle_imag[6],twiddle_imag[5],twiddle_imag[4],twiddle_imag[3],
+      twiddle_imag[2],twiddle_imag[1],twiddle_imag[0]
       }),
       .output_real(output_real_all),
       .output_imag(output_imag_all),
