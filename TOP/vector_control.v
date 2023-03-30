@@ -98,92 +98,95 @@ module vector_control #(
       control[2] <= 2'b00;
     end else begin
 
+    end
+  end
+always@(*) begin
 //STAGE 1
 
-        vector_input_real[0] <= { input_real_label[0] , input_real_label[8] , input_real_label[16] , input_real_label[24]};
-        vector_input_real[1] <= { input_real_label[1] , input_real_label[9] , input_real_label[17] , input_real_label[25]};
-        vector_input_real[2] <= { input_real_label[2] , input_real_label[10] , input_real_label[18] , input_real_label[26]};
-        vector_input_real[3] <= { input_real_label[3] , input_real_label[11] , input_real_label[19] , input_real_label[27]};
-        vector_input_real[4] <= { input_real_label[4] , input_real_label[12] , input_real_label[20] , input_real_label[28]};
-        vector_input_real[5] <= { input_real_label[5] , input_real_label[13] , input_real_label[21] , input_real_label[29]};
-        vector_input_real[6] <= { input_real_label[6] , input_real_label[14] , input_real_label[22] , input_real_label[30]};
-        vector_input_real[7] <= { input_real_label[7] , input_real_label[15] , input_real_label[23] , input_real_label[31]};
+        vector_input_real[0] = { input_real_label[0] , input_real_label[8] , input_real_label[16] , input_real_label[24]};
+        vector_input_real[1] = { input_real_label[1] , input_real_label[9] , input_real_label[17] , input_real_label[25]};
+        vector_input_real[2] = { input_real_label[2] , input_real_label[10] , input_real_label[18] , input_real_label[26]};
+        vector_input_real[3] = { input_real_label[3] , input_real_label[11] , input_real_label[19] , input_real_label[27]};
+        vector_input_real[4] = { input_real_label[4] , input_real_label[12] , input_real_label[20] , input_real_label[28]};
+        vector_input_real[5] = { input_real_label[5] , input_real_label[13] , input_real_label[21] , input_real_label[29]};
+        vector_input_real[6] = { input_real_label[6] , input_real_label[14] , input_real_label[22] , input_real_label[30]};
+        vector_input_real[7] = { input_real_label[7] , input_real_label[15] , input_real_label[23] , input_real_label[31]};
 
 
-        vector_input_imag[0] <= { input_imag_label[0] , input_imag_label[8]  , input_imag_label[16] , input_imag_label[24]};
-        vector_input_imag[1] <= { input_imag_label[1] , input_imag_label[9]  , input_imag_label[17] , input_imag_label[25]};
-        vector_input_imag[2] <= { input_imag_label[2] , input_imag_label[10] , input_imag_label[18] , input_imag_label[26]};
-        vector_input_imag[3] <= { input_imag_label[3] , input_imag_label[11] , input_imag_label[19] , input_imag_label[27]};
-        vector_input_imag[4] <= { input_imag_label[4] , input_imag_label[12] , input_imag_label[20] , input_imag_label[28]};
-        vector_input_imag[5] <= { input_imag_label[5] , input_imag_label[13] , input_imag_label[21] , input_imag_label[29]};
-        vector_input_imag[6] <= { input_imag_label[6] , input_imag_label[14] , input_imag_label[22] , input_imag_label[30]};
-        vector_input_imag[7] <= { input_imag_label[7] , input_imag_label[15] , input_imag_label[23] , input_imag_label[31]};
+        vector_input_imag[0] = { input_imag_label[0] , input_imag_label[8]  , input_imag_label[16] , input_imag_label[24]};
+        vector_input_imag[1] = { input_imag_label[1] , input_imag_label[9]  , input_imag_label[17] , input_imag_label[25]};
+        vector_input_imag[2] = { input_imag_label[2] , input_imag_label[10] , input_imag_label[18] , input_imag_label[26]};
+        vector_input_imag[3] = { input_imag_label[3] , input_imag_label[11] , input_imag_label[19] , input_imag_label[27]};
+        vector_input_imag[4] = { input_imag_label[4] , input_imag_label[12] , input_imag_label[20] , input_imag_label[28]};
+        vector_input_imag[5] = { input_imag_label[5] , input_imag_label[13] , input_imag_label[21] , input_imag_label[29]};
+        vector_input_imag[6] = { input_imag_label[6] , input_imag_label[14] , input_imag_label[22] , input_imag_label[30]};
+        vector_input_imag[7] = { input_imag_label[7] , input_imag_label[15] , input_imag_label[23] , input_imag_label[31]};
 
 
-        twiddle_real_reg[0] <= {twiddle_real[formatWidth*4-1:0]};
-        twiddle_real_reg[1] <= {twiddle_real[formatWidth*8-1:formatWidth*4]};
-        twiddle_real_reg[2] <= {twiddle_real[formatWidth*12-1:formatWidth*8]};
-        twiddle_real_reg[3] <= {twiddle_real[formatWidth*16-1:formatWidth*12]};
-        twiddle_real_reg[4] <= {twiddle_real[formatWidth*20-1:formatWidth*16]};
-        twiddle_real_reg[5] <= {twiddle_real[formatWidth*24-1:formatWidth*20]};
-        twiddle_real_reg[6] <= {twiddle_real[formatWidth*28-1:formatWidth*24]};
-        twiddle_real_reg[7] <= {twiddle_real[formatWidth*32-1:formatWidth*28]};
+        twiddle_real_reg[0] = {twiddle_real[formatWidth*4-1:0]};
+        twiddle_real_reg[1] = {twiddle_real[formatWidth*8-1:formatWidth*4]};
+        twiddle_real_reg[2] = {twiddle_real[formatWidth*12-1:formatWidth*8]};
+        twiddle_real_reg[3] = {twiddle_real[formatWidth*16-1:formatWidth*12]};
+        twiddle_real_reg[4] = {twiddle_real[formatWidth*20-1:formatWidth*16]};
+        twiddle_real_reg[5] = {twiddle_real[formatWidth*24-1:formatWidth*20]};
+        twiddle_real_reg[6] = {twiddle_real[formatWidth*28-1:formatWidth*24]};
+        twiddle_real_reg[7] = {twiddle_real[formatWidth*32-1:formatWidth*28]};
 
 
-        twiddle_imag_reg[0] <= {twiddle_imag[formatWidth*4-1:0]};
-        twiddle_imag_reg[1] <= {twiddle_imag[formatWidth*8-1:formatWidth*4]};
-        twiddle_imag_reg[2] <= {twiddle_imag[formatWidth*12-1:formatWidth*8]};
-        twiddle_imag_reg[3] <= {twiddle_imag[formatWidth*16-1:formatWidth*12]};
-        twiddle_imag_reg[4] <= {twiddle_imag[formatWidth*20-1:formatWidth*16]};
-        twiddle_imag_reg[5] <= {twiddle_imag[formatWidth*24-1:formatWidth*20]};
-        twiddle_imag_reg[6] <= {twiddle_imag[formatWidth*28-1:formatWidth*24]};
-        twiddle_imag_reg[7] <= {twiddle_imag[formatWidth*32-1:formatWidth*28]};
+        twiddle_imag_reg[0] = {twiddle_imag[formatWidth*4-1:0]};
+        twiddle_imag_reg[1] = {twiddle_imag[formatWidth*8-1:formatWidth*4]};
+        twiddle_imag_reg[2] = {twiddle_imag[formatWidth*12-1:formatWidth*8]};
+        twiddle_imag_reg[3] = {twiddle_imag[formatWidth*16-1:formatWidth*12]};
+        twiddle_imag_reg[4] = {twiddle_imag[formatWidth*20-1:formatWidth*16]};
+        twiddle_imag_reg[5] = {twiddle_imag[formatWidth*24-1:formatWidth*20]};
+        twiddle_imag_reg[6] = {twiddle_imag[formatWidth*28-1:formatWidth*24]};
+        twiddle_imag_reg[7] = {twiddle_imag[formatWidth*32-1:formatWidth*28]};
 
 //STAGE 2
 
-        vector_input_real[8] <= {
+        vector_input_real[8] = {
           vector_output_real[0][formatWidth*4-1:formatWidth*3],
           vector_output_real[2][formatWidth*4-1:formatWidth*3],
           vector_output_real[4][formatWidth*4-1:formatWidth*3],
           vector_output_real[6][formatWidth*4-1:formatWidth*3]
         };
-        vector_input_real[9] <= {
+        vector_input_real[9] = {
           vector_output_real[1][formatWidth*4-1:formatWidth*3],
           vector_output_real[3][formatWidth*4-1:formatWidth*3],
           vector_output_real[5][formatWidth*4-1:formatWidth*3],
           vector_output_real[7][formatWidth*4-1:formatWidth*3]
         };
-        vector_input_real[10] <= {
+        vector_input_real[10] = {
           vector_output_real[0][formatWidth*3-1:formatWidth*2],
           vector_output_real[2][formatWidth*3-1:formatWidth*2],
           vector_output_real[4][formatWidth*3-1:formatWidth*2],
           vector_output_real[6][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_real[11] <= {
+        vector_input_real[11] = {
           vector_output_real[1][formatWidth*3-1:formatWidth*2],
           vector_output_real[3][formatWidth*3-1:formatWidth*2],
           vector_output_real[5][formatWidth*3-1:formatWidth*2],
           vector_output_real[7][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_real[12] <= {
+        vector_input_real[12] = {
           vector_output_real[0][formatWidth*2-1:formatWidth*1],
           vector_output_real[2][formatWidth*2-1:formatWidth*1],
           vector_output_real[4][formatWidth*2-1:formatWidth*1],
           vector_output_real[6][formatWidth*2-1:formatWidth*1]
         };
-        vector_input_real[13] <= {
+        vector_input_real[13] = {
           vector_output_real[1][formatWidth*2-1:formatWidth*1],
           vector_output_real[3][formatWidth*2-1:formatWidth*1],
           vector_output_real[5][formatWidth*2-1:formatWidth*1],
           vector_output_real[7][formatWidth*2-1:formatWidth*1]
         };
-        vector_input_real[14] <= {
+        vector_input_real[14] = {
           vector_output_real[0][formatWidth*1-1:formatWidth*0],
           vector_output_real[2][formatWidth*1-1:formatWidth*0],
           vector_output_real[4][formatWidth*1-1:formatWidth*0],
           vector_output_real[6][formatWidth*1-1:formatWidth*0]
         };
-        vector_input_real[15] <= {
+        vector_input_real[15] = {
           vector_output_real[1][formatWidth*1-1:formatWidth*0],
           vector_output_real[3][formatWidth*1-1:formatWidth*0],
           vector_output_real[5][formatWidth*1-1:formatWidth*0],
@@ -191,49 +194,49 @@ module vector_control #(
         };
 
 
-        vector_input_imag[8] <= {
+        vector_input_imag[8] = {
           vector_output_imag[0][formatWidth*4-1:formatWidth*3],
           vector_output_imag[2][formatWidth*4-1:formatWidth*3],
           vector_output_imag[4][formatWidth*4-1:formatWidth*3],
           vector_output_imag[6][formatWidth*4-1:formatWidth*3]
         };
-        vector_input_imag[9] <= {
+        vector_input_imag[9] = {
           vector_output_imag[1][formatWidth*4-1:formatWidth*3],
           vector_output_imag[3][formatWidth*4-1:formatWidth*3],
           vector_output_imag[5][formatWidth*4-1:formatWidth*3],
           vector_output_imag[7][formatWidth*4-1:formatWidth*3]
         };
-        vector_input_imag[10] <= {
+        vector_input_imag[10] = {
           vector_output_imag[0][formatWidth*3-1:formatWidth*2],
           vector_output_imag[2][formatWidth*3-1:formatWidth*2],
           vector_output_imag[4][formatWidth*3-1:formatWidth*2],
           vector_output_imag[6][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_imag[11] <= {
+        vector_input_imag[11] = {
           vector_output_imag[1][formatWidth*3-1:formatWidth*2],
           vector_output_imag[3][formatWidth*3-1:formatWidth*2],
           vector_output_imag[5][formatWidth*3-1:formatWidth*2],
           vector_output_imag[7][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_imag[12] <= {
+        vector_input_imag[12] = {
           vector_output_imag[0][formatWidth*2-1:formatWidth*1],
           vector_output_imag[2][formatWidth*2-1:formatWidth*1],
           vector_output_imag[4][formatWidth*2-1:formatWidth*1],
           vector_output_imag[6][formatWidth*2-1:formatWidth*1]
         };
-        vector_input_imag[13] <= {
+        vector_input_imag[13] = {
           vector_output_imag[1][formatWidth*2-1:formatWidth*1],
           vector_output_imag[3][formatWidth*2-1:formatWidth*1],
           vector_output_imag[5][formatWidth*2-1:formatWidth*1],
           vector_output_imag[7][formatWidth*2-1:formatWidth*1]
         };
-        vector_input_imag[14] <= {
+        vector_input_imag[14] = {
           vector_output_imag[0][formatWidth*1-1:formatWidth*0],
           vector_output_imag[2][formatWidth*1-1:formatWidth*0],
           vector_output_imag[4][formatWidth*1-1:formatWidth*0],
           vector_output_imag[6][formatWidth*1-1:formatWidth*0]
         };
-        vector_input_imag[15] <= {
+        vector_input_imag[15] = {
           vector_output_imag[1][formatWidth*1-1:formatWidth*0],
           vector_output_imag[3][formatWidth*1-1:formatWidth*0],
           vector_output_imag[5][formatWidth*1-1:formatWidth*0],
@@ -241,70 +244,70 @@ module vector_control #(
         };
 
 
-        twiddle_real_reg[8] <= {twiddle_real[formatWidth*4-1:0]};
-        twiddle_real_reg[9] <= {twiddle_real[formatWidth*20-1:formatWidth*16]};
-        twiddle_real_reg[10] <= {twiddle_real[formatWidth*4-1:0]};
-        twiddle_real_reg[11] <= {twiddle_real[formatWidth*20-1:formatWidth*16]};
-        twiddle_real_reg[12] <= {twiddle_real[formatWidth*4-1:0]};
-        twiddle_real_reg[13] <= {twiddle_real[formatWidth*20-1:formatWidth*16]};
-        twiddle_real_reg[14] <= {twiddle_real[formatWidth*4-1:0]};
-        twiddle_real_reg[15] <= {twiddle_real[formatWidth*20-1:formatWidth*16]};
+        twiddle_real_reg[8]  = {twiddle_real[formatWidth*4-1:0]};
+        twiddle_real_reg[9]  = {twiddle_real[formatWidth*20-1:formatWidth*16]};
+        twiddle_real_reg[10] = {twiddle_real[formatWidth*4-1:0]};
+        twiddle_real_reg[11] = {twiddle_real[formatWidth*20-1:formatWidth*16]};
+        twiddle_real_reg[12] = {twiddle_real[formatWidth*4-1:0]};
+        twiddle_real_reg[13] = {twiddle_real[formatWidth*20-1:formatWidth*16]};
+        twiddle_real_reg[14] = {twiddle_real[formatWidth*4-1:0]};
+        twiddle_real_reg[15] = {twiddle_real[formatWidth*20-1:formatWidth*16]};
 
 
-        twiddle_imag_reg[8]  <= {twiddle_imag[formatWidth*4-1:0]};
-        twiddle_imag_reg[9]  <= {twiddle_imag[formatWidth*20-1:formatWidth*16]};
-        twiddle_imag_reg[10] <= {twiddle_imag[formatWidth*4-1:0]};
-        twiddle_imag_reg[11] <= {twiddle_imag[formatWidth*20-1:formatWidth*16]};
-        twiddle_imag_reg[12] <= {twiddle_imag[formatWidth*4-1:0]};
-        twiddle_imag_reg[13] <= {twiddle_imag[formatWidth*20-1:formatWidth*16]};
-        twiddle_imag_reg[14] <= {twiddle_imag[formatWidth*4-1:0]};
-        twiddle_imag_reg[15] <= {twiddle_imag[formatWidth*20-1:formatWidth*16]};
+        twiddle_imag_reg[8]  = {twiddle_imag[formatWidth*4-1:0]};
+        twiddle_imag_reg[9]  = {twiddle_imag[formatWidth*20-1:formatWidth*16]};
+        twiddle_imag_reg[10] = {twiddle_imag[formatWidth*4-1:0]};
+        twiddle_imag_reg[11] = {twiddle_imag[formatWidth*20-1:formatWidth*16]};
+        twiddle_imag_reg[12] = {twiddle_imag[formatWidth*4-1:0]};
+        twiddle_imag_reg[13] = {twiddle_imag[formatWidth*20-1:formatWidth*16]};
+        twiddle_imag_reg[14] = {twiddle_imag[formatWidth*4-1:0]};
+        twiddle_imag_reg[15] = {twiddle_imag[formatWidth*20-1:formatWidth*16]};
 
 
 // STAGE 3
-        vector_input_real[16] <= {
+        vector_input_real[16] = {
           vector_output_real[8][formatWidth*4-1:formatWidth*3],
           vector_output_real[9][formatWidth*4-1:formatWidth*3],
           vector_output_real[8][formatWidth*3-1:formatWidth*2],
           vector_output_real[9][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_real[17] <= {
+        vector_input_real[17] = {
           vector_output_real[8][formatWidth*2-1:formatWidth*1],
           vector_output_real[9][formatWidth*2-1:formatWidth*1],
           vector_output_real[8][formatWidth*1-1:formatWidth*0],
           vector_output_real[9][formatWidth*1-1:formatWidth*0]
         };
-        vector_input_real[18] <= {
+        vector_input_real[18] = {
           vector_output_real[10][formatWidth*4-1:formatWidth*3],
           vector_output_real[11][formatWidth*4-1:formatWidth*3],
           vector_output_real[10][formatWidth*3-1:formatWidth*2],
           vector_output_real[11][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_real[19] <= {
+        vector_input_real[19] = {
           vector_output_real[10][formatWidth*2-1:formatWidth*1],
           vector_output_real[11][formatWidth*2-1:formatWidth*1],
           vector_output_real[10][formatWidth*1-1:formatWidth*0],
           vector_output_real[11][formatWidth*1-1:formatWidth*0]
         };
-        vector_input_real[20] <= {
+        vector_input_real[20] = {
           vector_output_real[12][formatWidth*4-1:formatWidth*3],
           vector_output_real[13][formatWidth*4-1:formatWidth*3],
           vector_output_real[12][formatWidth*3-1:formatWidth*2],
           vector_output_real[13][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_real[21] <= {
+        vector_input_real[21] = {
           vector_output_real[12][formatWidth*2-1:formatWidth*1],
           vector_output_real[13][formatWidth*2-1:formatWidth*1],
           vector_output_real[12][formatWidth*1-1:formatWidth*0],
           vector_output_real[13][formatWidth*1-1:formatWidth*0]
         };
-        vector_input_real[22] <= {
+        vector_input_real[22] = {
           vector_output_real[14][formatWidth*4-1:formatWidth*3],
           vector_output_real[15][formatWidth*4-1:formatWidth*3],
           vector_output_real[14][formatWidth*3-1:formatWidth*2],
           vector_output_real[15][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_real[23] <= {
+        vector_input_real[23] = {
           vector_output_real[14][formatWidth*2-1:formatWidth*1],
           vector_output_real[15][formatWidth*2-1:formatWidth*1],
           vector_output_real[14][formatWidth*1-1:formatWidth*0],
@@ -312,49 +315,49 @@ module vector_control #(
         };
 
 
-        vector_input_imag[16] <= {
+        vector_input_imag[16] = {
           vector_output_imag[8][formatWidth*4-1:formatWidth*3],
           vector_output_imag[9][formatWidth*4-1:formatWidth*3],
           vector_output_imag[8][formatWidth*3-1:formatWidth*2],
           vector_output_imag[9][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_imag[17] <= {
+        vector_input_imag[17] = {
           vector_output_imag[8][formatWidth*2-1:formatWidth*1],
           vector_output_imag[9][formatWidth*2-1:formatWidth*1],
           vector_output_imag[8][formatWidth*1-1:formatWidth*0],
           vector_output_imag[9][formatWidth*1-1:formatWidth*0]
         };
-        vector_input_imag[18] <= {
+        vector_input_imag[18] = {
           vector_output_imag[10][formatWidth*4-1:formatWidth*3],
           vector_output_imag[11][formatWidth*4-1:formatWidth*3],
           vector_output_imag[10][formatWidth*3-1:formatWidth*2],
           vector_output_imag[11][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_imag[19] <= {
+        vector_input_imag[19] = {
           vector_output_imag[10][formatWidth*2-1:formatWidth*1],
           vector_output_imag[11][formatWidth*2-1:formatWidth*1],
           vector_output_imag[10][formatWidth*1-1:formatWidth*0],
           vector_output_imag[11][formatWidth*1-1:formatWidth*0]
         };
-        vector_input_imag[20] <= {
+        vector_input_imag[20] = {
           vector_output_imag[12][formatWidth*4-1:formatWidth*3],
           vector_output_imag[13][formatWidth*4-1:formatWidth*3],
           vector_output_imag[12][formatWidth*3-1:formatWidth*2],
           vector_output_imag[13][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_imag[21] <= {
+        vector_input_imag[21] = {
           vector_output_imag[12][formatWidth*2-1:formatWidth*1],
           vector_output_imag[13][formatWidth*2-1:formatWidth*1],
           vector_output_imag[12][formatWidth*1-1:formatWidth*0],
           vector_output_imag[13][formatWidth*1-1:formatWidth*0]
         };
-        vector_input_imag[22] <= {
+        vector_input_imag[22] = {
           vector_output_imag[14][formatWidth*4-1:formatWidth*3],
           vector_output_imag[15][formatWidth*4-1:formatWidth*3],
           vector_output_imag[14][formatWidth*3-1:formatWidth*2],
           vector_output_imag[15][formatWidth*3-1:formatWidth*2]
         };
-        vector_input_imag[23] <= {
+        vector_input_imag[23] = {
           vector_output_imag[14][formatWidth*2-1:formatWidth*1],
           vector_output_imag[15][formatWidth*2-1:formatWidth*1],
           vector_output_imag[14][formatWidth*1-1:formatWidth*0],
@@ -364,49 +367,49 @@ module vector_control #(
 
 
 
-        output_real[vector_length*1-1:vector_length*0] <= {
+        output_real[vector_length*1-1:vector_length*0] = {
           vector_output_real[22][formatWidth*4-1:formatWidth*3],
           vector_output_real[20][formatWidth*4-1:formatWidth*3],
           vector_output_real[18][formatWidth*4-1:formatWidth*3],
           vector_output_real[16][formatWidth*4-1:formatWidth*3]
         };
-        output_real[vector_length*5-1:vector_length*4] <= {
+        output_real[vector_length*5-1:vector_length*4] = {
           vector_output_real[22][formatWidth*2-1:formatWidth*1],
           vector_output_real[20][formatWidth*2-1:formatWidth*1],
           vector_output_real[18][formatWidth*2-1:formatWidth*1],
           vector_output_real[16][formatWidth*2-1:formatWidth*1]
         };
-        output_real[vector_length*2-1:vector_length*1] <= {
+        output_real[vector_length*2-1:vector_length*1] = {
           vector_output_real[22][formatWidth*3-1:formatWidth*2],
           vector_output_real[20][formatWidth*3-1:formatWidth*2],
           vector_output_real[18][formatWidth*3-1:formatWidth*2],
           vector_output_real[16][formatWidth*3-1:formatWidth*2]
         };
-        output_real[vector_length*6-1:vector_length*5] <= {
+        output_real[vector_length*6-1:vector_length*5] = {
           vector_output_real[22][formatWidth*1-1:formatWidth*0],
           vector_output_real[20][formatWidth*1-1:formatWidth*0],
           vector_output_real[18][formatWidth*1-1:formatWidth*0],
           vector_output_real[16][formatWidth*1-1:formatWidth*0]
         };
-        output_real[vector_length*3-1:vector_length*2] <= {
+        output_real[vector_length*3-1:vector_length*2] = {
           vector_output_real[23][formatWidth*4-1:formatWidth*3],
           vector_output_real[21][formatWidth*4-1:formatWidth*3],
           vector_output_real[19][formatWidth*4-1:formatWidth*3],
           vector_output_real[17][formatWidth*4-1:formatWidth*3]
         };
-        output_real[vector_length*7-1:vector_length*6] <= {
+        output_real[vector_length*7-1:vector_length*6] = {
           vector_output_real[23][formatWidth*2-1:formatWidth*1],
           vector_output_real[21][formatWidth*2-1:formatWidth*1],
           vector_output_real[19][formatWidth*2-1:formatWidth*1],
           vector_output_real[17][formatWidth*2-1:formatWidth*1]
         };
-        output_real[vector_length*4-1:vector_length*3] <= {
+        output_real[vector_length*4-1:vector_length*3] = {
           vector_output_real[23][formatWidth*3-1:formatWidth*2],
           vector_output_real[21][formatWidth*3-1:formatWidth*2],
           vector_output_real[19][formatWidth*3-1:formatWidth*2],
           vector_output_real[17][formatWidth*3-1:formatWidth*2]
         };
-        output_real[vector_length*8-1:vector_length*7] <= {
+        output_real[vector_length*8-1:vector_length*7] = {
           vector_output_real[23][formatWidth*1-1:formatWidth*0],
           vector_output_real[21][formatWidth*1-1:formatWidth*0],
           vector_output_real[19][formatWidth*1-1:formatWidth*0],
@@ -414,57 +417,55 @@ module vector_control #(
         };
 
 
-        output_imag[vector_length*1-1:vector_length*0] <= {
+        output_imag[vector_length*1-1:vector_length*0] = {
           vector_output_imag[22][formatWidth*4-1:formatWidth*3],
           vector_output_imag[20][formatWidth*4-1:formatWidth*3],
           vector_output_imag[18][formatWidth*4-1:formatWidth*3],
           vector_output_imag[16][formatWidth*4-1:formatWidth*3]
         };
-        output_imag[vector_length*5-1:vector_length*4] <= {
+        output_imag[vector_length*5-1:vector_length*4] = {
           vector_output_imag[22][formatWidth*2-1:formatWidth*1],
           vector_output_imag[20][formatWidth*2-1:formatWidth*1],
           vector_output_imag[18][formatWidth*2-1:formatWidth*1],
           vector_output_imag[16][formatWidth*2-1:formatWidth*1]
         };
-        output_imag[vector_length*2-1:vector_length*1] <= {
+        output_imag[vector_length*2-1:vector_length*1] = {
           vector_output_imag[22][formatWidth*3-1:formatWidth*2],
           vector_output_imag[20][formatWidth*3-1:formatWidth*2],
           vector_output_imag[18][formatWidth*3-1:formatWidth*2],
           vector_output_imag[16][formatWidth*3-1:formatWidth*2]
         };
-        output_imag[vector_length*6-1:vector_length*5] <= {
+        output_imag[vector_length*6-1:vector_length*5] = {
           vector_output_imag[22][formatWidth*1-1:formatWidth*0],
           vector_output_imag[20][formatWidth*1-1:formatWidth*0],
           vector_output_imag[18][formatWidth*1-1:formatWidth*0],
           vector_output_imag[16][formatWidth*1-1:formatWidth*0]
         };
-        output_imag[vector_length*3-1:vector_length*2] <= {
+        output_imag[vector_length*3-1:vector_length*2] = {
           vector_output_imag[23][formatWidth*4-1:formatWidth*3],
           vector_output_imag[21][formatWidth*4-1:formatWidth*3],
           vector_output_imag[19][formatWidth*4-1:formatWidth*3],
           vector_output_imag[17][formatWidth*4-1:formatWidth*3]
         };
-        output_imag[vector_length*7-1:vector_length*6] <= {
+        output_imag[vector_length*7-1:vector_length*6] = {
           vector_output_imag[23][formatWidth*2-1:formatWidth*1],
           vector_output_imag[21][formatWidth*2-1:formatWidth*1],
           vector_output_imag[19][formatWidth*2-1:formatWidth*1],
           vector_output_imag[17][formatWidth*2-1:formatWidth*1]
         };
-        output_imag[vector_length*4-1:vector_length*3] <= {
+        output_imag[vector_length*4-1:vector_length*3] = {
           vector_output_imag[23][formatWidth*3-1:formatWidth*2],
           vector_output_imag[21][formatWidth*3-1:formatWidth*2],
           vector_output_imag[19][formatWidth*3-1:formatWidth*2],
           vector_output_imag[17][formatWidth*3-1:formatWidth*2]
         };
-        output_imag[vector_length*8-1:vector_length*7] <= {
+        output_imag[vector_length*8-1:vector_length*7] = {
           vector_output_imag[23][formatWidth*1-1:formatWidth*0],
           vector_output_imag[21][formatWidth*1-1:formatWidth*0],
           vector_output_imag[19][formatWidth*1-1:formatWidth*0],
           vector_output_imag[17][formatWidth*1-1:formatWidth*0]
         };
-    end
-  end
-
+end
 
   vector_size4 #(
       .expWidth(expWidth),

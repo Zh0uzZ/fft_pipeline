@@ -188,24 +188,35 @@ module gemm #(
   wire [           3:0] man_shifter_sign    [3:0];
   wire [4*sigWidth-1:0] man_shifter_input   [3:0];
 
+  reg [formatWidth*4-1:0] input_real_ff , input_imag_ff;
+  always@(posedge clk or negedge rst) begin
+    if(~rst) begin
+      input_real_ff <= 0;
+      input_imag_ff <= 0;
+    end else begin
+      input_real_ff <= input_real;
+      input_imag_ff <= input_imag;
+    end
+  end
+
   assign man_shifter_sign[0] = control ? {
-      input_real[formatWidth*4-1],
-      input_real[formatWidth*3-1],
-      input_real[formatWidth*2-1],
-      input_real[formatWidth-1]
+      input_real_ff[formatWidth*4-1],
+      input_real_ff[formatWidth*3-1],
+      input_real_ff[formatWidth*2-1],
+      input_real_ff[formatWidth-1]
     } : {
-      input_real[formatWidth*4-1],
-      input_real[formatWidth*3-1],
+      input_real_ff[formatWidth*4-1],
+      input_real_ff[formatWidth*3-1],
       2'b00
     };
   assign man_shifter_input[0] = control ? {
-      input_real[(formatWidth*4-2-expWidth):(formatWidth*3)],
-      input_real[(formatWidth*3-2-expWidth):(formatWidth*2)],
-      input_real[(formatWidth*2-2-expWidth):(formatWidth*1)],
-      input_real[formatWidth-2-expWidth:0]
+      input_real_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
+      input_real_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
+      input_real_ff[(formatWidth*2-2-expWidth):(formatWidth*1)],
+      input_real_ff[formatWidth-2-expWidth:0]
     } : {
-      input_real[(formatWidth*4-2-expWidth):(formatWidth*3)],
-      input_real[(formatWidth*3-2-expWidth):(formatWidth*2)],
+      input_real_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
+      input_real_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
       8'b0000_0000
     } ;
   man_shifter #(  //real[3:0]
@@ -221,23 +232,23 @@ module gemm #(
 
 
   assign man_shifter_sign[1] = control ? {
-      input_real[formatWidth*4-1],
-      input_real[formatWidth*2-1],
-      input_imag[formatWidth*3-1],
-      input_imag[formatWidth-1]
+      input_real_ff[formatWidth*4-1],
+      input_real_ff[formatWidth*2-1],
+      input_imag_ff[formatWidth*3-1],
+      input_imag_ff[formatWidth-1]
     } : {
-      input_real[formatWidth*2-1],
-      input_real[formatWidth*1-1],
+      input_real_ff[formatWidth*2-1],
+      input_real_ff[formatWidth*1-1],
       2'b00
     };
   assign man_shifter_input[1] = control ? {
-      input_real[(formatWidth*4-2-expWidth):(formatWidth*3)],
-      input_real[(formatWidth*2-2-expWidth):(formatWidth*1)],
-      input_imag[(formatWidth*3-2-expWidth):(formatWidth*2)],
-      input_imag[formatWidth-2-expWidth:0]
+      input_real_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
+      input_real_ff[(formatWidth*2-2-expWidth):(formatWidth*1)],
+      input_imag_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
+      input_imag_ff[formatWidth-2-expWidth:0]
     } : {
-      input_real[(formatWidth*2-2-expWidth):(formatWidth)],
-      input_real[(formatWidth*1-2-expWidth):0],
+      input_real_ff[(formatWidth*2-2-expWidth):(formatWidth)],
+      input_real_ff[(formatWidth*1-2-expWidth):0],
       8'b0000_0000
     } ;
   man_shifter #(  //real[3] , real[1] , imag[2] , imag[0]
@@ -253,23 +264,23 @@ module gemm #(
 
 
   assign man_shifter_sign[2] = control ? {
-      input_imag[formatWidth*4-1],
-      input_imag[formatWidth*3-1],
-      input_imag[formatWidth*2-1],
-      input_imag[formatWidth-1]
+      input_imag_ff[formatWidth*4-1],
+      input_imag_ff[formatWidth*3-1],
+      input_imag_ff[formatWidth*2-1],
+      input_imag_ff[formatWidth-1]
     } : {
-      input_imag[formatWidth*4-1],
-      input_imag[formatWidth*3-1],
+      input_imag_ff[formatWidth*4-1],
+      input_imag_ff[formatWidth*3-1],
       2'b00
     };
   assign man_shifter_input[2] = control ? {
-      input_imag[(formatWidth*4-2-expWidth):(formatWidth*3)],
-      input_imag[(formatWidth*3-2-expWidth):(formatWidth*2)],
-      input_imag[(formatWidth*2-2-expWidth):(formatWidth*1)],
-      input_imag[formatWidth-2-expWidth:0]
+      input_imag_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
+      input_imag_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
+      input_imag_ff[(formatWidth*2-2-expWidth):(formatWidth*1)],
+      input_imag_ff[formatWidth-2-expWidth:0]
     } : {
-      input_imag[(formatWidth*4-2-expWidth):(formatWidth*3)],
-      input_imag[(formatWidth*3-2-expWidth):(formatWidth*2)],
+      input_imag_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
+      input_imag_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
       8'b0000_0000
     } ;
   man_shifter #(  //imag[3:0]
@@ -285,23 +296,23 @@ module gemm #(
 
 
   assign man_shifter_sign[3] = control ? {
-      input_real[formatWidth*3-1],
-      input_real[formatWidth*1-1],
-      input_imag[formatWidth*4-1],
-      input_imag[formatWidth*2-1]
+      input_real_ff[formatWidth*3-1],
+      input_real_ff[formatWidth*1-1],
+      input_imag_ff[formatWidth*4-1],
+      input_imag_ff[formatWidth*2-1]
     } : {
-      input_imag[formatWidth*2-1],
-      input_imag[formatWidth*1-1],
+      input_imag_ff[formatWidth*2-1],
+      input_imag_ff[formatWidth*1-1],
       2'b00
     };
   assign man_shifter_input[3] = control ? {
-      input_real[(formatWidth*3-2-expWidth):(formatWidth*2)],
-      input_real[(formatWidth*1-2-expWidth):(formatWidth*0)],
-      input_imag[(formatWidth*4-2-expWidth):(formatWidth*3)],
-      input_imag[formatWidth*2-2-expWidth:formatWidth*1]
+      input_real_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
+      input_real_ff[(formatWidth*1-2-expWidth):(formatWidth*0)],
+      input_imag_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
+      input_imag_ff[formatWidth*2-2-expWidth:formatWidth*1]
     } : {
-      input_imag[(formatWidth*2-2-expWidth):(formatWidth*1)],
-      input_imag[(formatWidth*1-2-expWidth):0],
+      input_imag_ff[(formatWidth*2-2-expWidth):(formatWidth*1)],
+      input_imag_ff[(formatWidth*1-2-expWidth):0],
       8'b0000_0000
     } ;
   man_shifter #(  //real[2] real[0] imag[3] imag[1]
@@ -470,6 +481,28 @@ module gemm #(
 
 
   //将10bit定点数转化为sfp数
+  reg [expWidth-1:0] max_exp_ff1 [3:0];
+  reg [expWidth-1:0] max_exp_ff2 [3:0];
+  reg [expWidth-1:0] max_exp_ff3 [3:0];
+  reg [expWidth-1:0] max_exp_ff4 [3:0];
+  always@(posedge clk or negedge rst) begin
+    if(~rst) begin
+      for (i = 0; i < 4; i = i + 1) begin
+        max_exp_ff1[i] <= 0;
+        max_exp_ff2[i] <= 0;
+        max_exp_ff3[i] <= 0;
+        max_exp_ff4[i] <= 0;
+      end
+    end else begin
+      for (i = 0; i < 4; i = i + 1) begin
+        max_exp_ff1[i] <= max_exp[i];
+        max_exp_ff2[i] <= max_exp_ff1[i];
+        max_exp_ff3[i] <= max_exp_ff2[i];
+        max_exp_ff4[i] <= max_exp_ff3[i];
+      end
+    end
+  end
+
   generate
     for (j = 0; j < 2; j = j + 1) begin : u0_fix2sfp
       fix2sfp #(
@@ -479,7 +512,7 @@ module gemm #(
           .low_expand(low_expand)
       ) u_fix2sfp (
           .fixin  (mantissa_reg[j]),
-          .max_exp(max_exp[j]),
+          .max_exp(max_exp_ff4[j]),
           .sfpout (sfpout[j])
       );
     end
@@ -493,7 +526,7 @@ module gemm #(
           .low_expand(low_expand)
       ) u_fix2sfp (
           .fixin  (mantissa_reg[j]),
-          .max_exp(max_exp[j-2]),
+          .max_exp(max_exp_ff4[j-2]),
           .sfpout (sfpout[j])
       );
     end
@@ -507,7 +540,7 @@ module gemm #(
           .low_expand(low_expand)
       ) u_fix2sfp (
           .fixin  (mantissa_reg[j]),
-          .max_exp(max_exp[j-4]),
+          .max_exp(max_exp_ff4[j-4]),
           .sfpout (sfpout[j])
       );
     end

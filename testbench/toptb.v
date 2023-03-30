@@ -48,7 +48,7 @@ module toptb;
     for(integer j=0;j<400;j=j+1) begin
       $fscanf(hand_input , "%0d" , input_data[j]);
     end
-    fclose(hand_input);
+    $fclose(hand_input);
     // $readmemh("out.txt" , input_data);
   end
 
@@ -111,6 +111,7 @@ module toptb;
     #20 rst = 0;
     #20 rst = 1;
     #20 fft_start = 1;
+    #940 $stop;
     // #20 fft_start = 0;
 
   end

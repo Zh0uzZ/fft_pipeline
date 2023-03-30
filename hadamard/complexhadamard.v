@@ -202,8 +202,20 @@ module complexhadamard #(
     end
   endgenerate
 
-
   //指数部分右移
+  reg [formatWidth*8-1 : 0] sfp_real_ff;
+  reg [formatWidth*8-1 : 0] sfp_imag_ff;
+  always@(posedge clk or negedge rst) begin
+    if(~rst) begin
+      sfp_real_ff <= 0;
+      sfp_imag_ff <= 0;
+    end else begin
+      sfp_real_ff <= sfp_real_reg;
+      sfp_imag_ff <= sfp_imag_reg;
+    end
+  end
+
+
   generate
     for (j = 0; j < 4; j = j + 1) begin : u0_man_shifter
       man_shifter_2 #(
@@ -213,10 +225,10 @@ module complexhadamard #(
       ) u_man_shifter (
           .exp_offset_num(exp_offset_num_reg[j]),
           .mantissa({
-            sfp_real_reg[formatWidth*(j+1)-2-expWidth-:sigWidth],
-            sfp_real_reg[formatWidth*(j+5)-2-expWidth-:sigWidth]
+            sfp_real_ff[formatWidth*(j+1)-2-expWidth-:sigWidth],
+            sfp_real_ff[formatWidth*(j+5)-2-expWidth-:sigWidth]
           }),
-          .sign({sfp_real_reg[formatWidth*(j+1)-1], 1'b1 ^ sfp_real_reg[formatWidth*(j+5)-1]}),
+          .sign({sfp_real_ff[formatWidth*(j+1)-1], 1'b1 ^ sfp_real_ff[formatWidth*(j+5)-1]}),
           .man_off(man_off[j])
       );
     end
@@ -231,10 +243,10 @@ module complexhadamard #(
       ) u_man_shifter (
           .exp_offset_num(exp_offset_num_reg[j+4]),
           .mantissa({
-            sfp_imag_reg[formatWidth*(j+1)-2-expWidth-:sigWidth],
-            sfp_imag_reg[formatWidth*(j+5)-2-expWidth-:sigWidth]
+            sfp_imag_ff[formatWidth*(j+1)-2-expWidth-:sigWidth],
+            sfp_imag_ff[formatWidth*(j+5)-2-expWidth-:sigWidth]
           }),
-          .sign({sfp_imag_reg[formatWidth*(j+1)-1], sfp_imag_reg[formatWidth*(j+5)-1]}),
+          .sign({sfp_imag_ff[formatWidth*(j+1)-1], sfp_imag_ff[formatWidth*(j+5)-1]}),
           .man_off(man_off[j+4])
       );
     end
@@ -256,6 +268,25 @@ module complexhadamard #(
 
 
   //对得到的10bit定点数，求补码并且转换为sfp数
+  //将max_exp最大指数部分延迟三个时钟沿
+  reg [expWidth-1:0] max_exp_ff1 [7:0];
+  reg [expWidth-1:0] max_exp_ff2 [7:0];
+  reg [expWidth-1:0] max_exp_ff3 [7:0];
+  always@(posedge clk or negedge rst) begin
+    if(~rst) begin
+      for (i = 0; i < 8; i = i + 1) begin
+        max_exp_ff1[i] <= 0;
+        max_exp_ff2[i] <= 0;
+        max_exp_ff3[i] <= 0;
+      end
+    end else begin
+      for (i = 0; i < 8; i = i + 1) begin
+        max_exp_ff1[i] <= max_exp[i];
+        max_exp_ff2[i] <= max_exp_ff1[i];
+        max_exp_ff3[i] <= max_exp_ff2[i];
+      end
+    end
+  end
 
   generate
     for (j = 0; j < 8; j = j + 1) begin : u_fix2sfp
@@ -266,7 +297,7 @@ module complexhadamard #(
           .low_expand(low_expand)
       ) u_fix2sfp (
           .fixin  (adder_num_reg[j]),
-          .max_exp(max_exp[j]),
+          .max_exp(max_exp_ff3[j]),
           .sfpout (sfpout[j])
       );
     end
