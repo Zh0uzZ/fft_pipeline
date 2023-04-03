@@ -16,13 +16,6 @@ module gemm #(
     output reg [(formatWidth*4-1) : 0] output_imag,
     output reg                         gemm_done
 );
-  localparam IDLE = 3'b000;  //等待start信号
-  localparam EXPONENT_NORMALIZE = 3'b001;  //指数归一化，找到最大指数
-  localparam MANTISSA_OFFSET = 3'b010;  //尾数对齐
-  localparam COMPLEMENT = 3'b011;  //取尾数的补码
-  localparam ADDER = 3'b100;  //尾数补码进行加法
-  localparam FIX2SFP = 3'b101;  //对sfp数字进行指数、尾数的拼接
-
 
   //debug signals 
   wire [formatWidth-1:0] wire_input_real     [3:0];
@@ -101,7 +94,10 @@ module gemm #(
     end
   end
 
-  //找出最大指数值，并进行尾数移位
+
+
+  //1CYCLE
+  //找出最大指数值,并计算出significand应该右移的位数
   //第一个指数对齐module
   wire [4*expWidth-1:0] exp_normalizer_input [3:0];
   wire [(expWidth-1):0] max_exp              [3:0];
@@ -184,7 +180,8 @@ module gemm #(
 
 
 
-  //根据max_exp 求得mantissa移位结果
+  //2CYCLE
+  //根据max_exp 求得significand移位结果,并进行尾数补齐为10bit的定点数
   wire [           3:0] man_shifter_sign    [3:0];
   wire [4*sigWidth-1:0] man_shifter_input   [3:0];
 
@@ -328,7 +325,7 @@ module gemm #(
 
 
 
-
+  //3CYCLE , 取其4个加数的补码
   //求出adder_4in的加数
 
   wire [3:0] complement_sign     [7:0];
@@ -420,7 +417,7 @@ module gemm #(
 
 
 
-
+  //4CYCLE 计算4个定点补码的和
   //计算加法的部分
   adder_4in #(
       .sigWidth  (sigWidth),
@@ -480,6 +477,8 @@ module gemm #(
   );
 
 
+
+  //5CYCLE ， 将得到的10bit定点数转化为小浮点数
   //将10bit定点数转化为sfp数
   reg [expWidth-1:0] max_exp_ff1 [3:0];
   reg [expWidth-1:0] max_exp_ff2 [3:0];

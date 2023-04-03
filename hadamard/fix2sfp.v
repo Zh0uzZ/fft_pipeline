@@ -106,18 +106,18 @@ module fix2sfp #(
   //尾数数据不经过四舍五入
   always @(*) begin
     case (pos)
-      4'd12: begin
-        mantissa_reg  = expand_mantissa[11:8];
-        expOffset_reg = 8 - low_expand;
-      end
-      4'd11: begin
-        mantissa_reg  = expand_mantissa[10:7];
-        expOffset_reg = 7 - low_expand;
-      end
-      4'd10: begin
-        mantissa_reg  = expand_mantissa[9:6];
-        expOffset_reg = 6 - low_expand;
-      end
+//      4'd12: begin
+//        mantissa_reg  = expand_mantissa[11:8];
+//        expOffset_reg = 8 - low_expand;
+//      end
+//      4'd11: begin
+//        mantissa_reg  = expand_mantissa[10:7];
+//        expOffset_reg = 7 - low_expand;
+//      end
+//      4'd10: begin
+//        mantissa_reg  = expand_mantissa[9:6];
+//        expOffset_reg = 6 - low_expand;
+//      end
       4'd9: begin
         mantissa_reg  = expand_mantissa[8:5];
         expOffset_reg = 5 - low_expand;

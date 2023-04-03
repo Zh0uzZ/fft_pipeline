@@ -15,13 +15,13 @@ module complexhadamard #(
     output reg [formatWidth*4-1:0] output_imag,
     output reg                     hadamard_done
 );
-  localparam IDLE = 3'b000;
-  localparam SFP_MULTIPLY = 3'b001;
-  localparam EXP_NORMALIZER = 3'b010;
-  localparam MANTISSA_OFF = 3'b011;
-  localparam ADDER = 3'b100;
-  localparam FIX2SFP = 3'b101;
-  localparam DONE = 3'b110;
+  // localparam IDLE = 3'b000;
+  // localparam SFP_MULTIPLY = 3'b001;
+  // localparam EXP_NORMALIZER = 3'b010;
+  // localparam MANTISSA_OFF = 3'b011;
+  // localparam ADDER = 3'b100;
+  // localparam FIX2SFP = 3'b101;
+  // localparam DONE = 3'b110;
 
 
   //debug signals 
@@ -115,6 +115,7 @@ module complexhadamard #(
     end
   end
 
+  //1CYCLE , 计算sfp和twiddle factor的乘积
   //sfp相乘，输入与twiddle factor相乘
   generate
     for (j = 0; j < 4; j = j + 1) begin : u0_sfpmulti
@@ -170,6 +171,8 @@ module complexhadamard #(
   endgenerate
 
 
+
+  //2CYCLE,找到指数最大值
   // 指数找到最大值以及算出偏移量
   wire [expWidth-1:0] max_exp [7:0];
   generate
@@ -202,6 +205,8 @@ module complexhadamard #(
     end
   endgenerate
 
+
+  //3CYCLE
   //指数部分右移
   reg [formatWidth*8-1 : 0] sfp_real_ff;
   reg [formatWidth*8-1 : 0] sfp_imag_ff;
@@ -253,6 +258,7 @@ module complexhadamard #(
   endgenerate
 
 
+  //4CYCLE , 计算加法
   //求补码并且10bit数据相加
   generate
     for (j = 0; j < 8; j = j + 1) begin : u_adder_2in
@@ -267,6 +273,7 @@ module complexhadamard #(
   endgenerate
 
 
+  //5CYCLE，fix -->  sfp44
   //对得到的10bit定点数，求补码并且转换为sfp数
   //将max_exp最大指数部分延迟三个时钟沿
   reg [expWidth-1:0] max_exp_ff1 [7:0];

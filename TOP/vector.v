@@ -1,22 +1,25 @@
-module vector_size4 #(
-    parameter expWidth    = 4,
-    parameter sigWidth    = 4,
-    parameter formatWidth = 9,
-    parameter low_expand  = 2,
-    parameter fixWidth    = 21
-) (
+// FFT 向量大小为4时，vector_size4
+//
+`include "parameter.vh"
+module vector_size4 (
     input                          clk,
     input                          rst,
     input                          start,
     input  [                1 : 0] control,
-    input  [(formatWidth*4-1) : 0] input_real,
-    input  [(formatWidth*4-1) : 0] input_imag,
-    input  [(formatWidth*4-1) : 0] twiddle_real,
-    input  [(formatWidth*4-1) : 0] twiddle_imag,
-    output [(formatWidth*4-1) : 0] output_real,
-    output [(formatWidth*4-1) : 0] output_imag,
+    input  [(`SFPWIDTH*4-1) : 0] input_real,
+    input  [(`SFPWIDTH*4-1) : 0] input_imag,
+    input  [(`SFPWIDTH*4-1) : 0] twiddle_real,
+    input  [(`SFPWIDTH*4-1) : 0] twiddle_imag,
+    output [(`SFPWIDTH*4-1) : 0] output_real,
+    output [(`SFPWIDTH*4-1) : 0] output_imag,
     output                         vector_done
 );
+
+  parameter expWidth    = `EXPWIDTH;
+  parameter sigWidth    = `SIGWIDTH;
+  parameter formatWidth = `SFPWIDTH;
+  parameter low_expand  = `LOW_EXPAND;
+  parameter fixWidth    = `FIXWIDTH;
 
   wire gemm_done;
   wire hadamard_start, hadamard_done;
