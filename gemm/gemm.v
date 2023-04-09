@@ -330,20 +330,14 @@ module gemm #(
 
   wire [3:0] complement_sign     [7:0];
   assign complement_sign[0] = control ? 4'b0000 : 4'b0000;
-  complement #(
-      .sigWidth  (sigWidth),
-      .low_expand(low_expand)
-  ) u0_complement (
+  complement u0_complement (
       .sign          (complement_sign[0]),
       .input_num     (man_off_reg[0]),
       .complement_num(adder_num[0])
   );
 
   assign complement_sign[1] = control ? 4'b0101 : 4'b0000;
-  complement #(
-      .sigWidth  (sigWidth),
-      .low_expand(low_expand)
-  ) u1_complement (
+  complement u1_complement (
       .sign          (complement_sign[1]),
       .input_num     (man_off_reg[1]),
       .complement_num(adder_num[1])
@@ -351,10 +345,7 @@ module gemm #(
 
 
   assign complement_sign[2] = control ? 4'b0101 : 4'b0100;
-  complement #(
-      .sigWidth  (sigWidth),
-      .low_expand(low_expand)
-  ) u2_complement (
+  complement u2_complement (
       .sign          (complement_sign[2]),
       .input_num     (man_off_reg[0]),
       .complement_num(adder_num[2])
@@ -362,10 +353,7 @@ module gemm #(
 
 
   assign complement_sign[3] = control ? 4'b0110 : 4'b0100;
-  complement #(
-      .sigWidth  (sigWidth),
-      .low_expand(low_expand)
-  ) u3_complement (
+  complement u3_complement (
       .sign          (complement_sign[3]),
       .input_num     (man_off_reg[1]),
       .complement_num(adder_num[3])
@@ -373,10 +361,7 @@ module gemm #(
 
 
   assign complement_sign[4] = control ? 4'b0000 : 4'b0000;
-  complement #(
-      .sigWidth  (sigWidth),
-      .low_expand(low_expand)
-  ) u4_complement (
+  complement u4_complement (
       .sign          (complement_sign[4]),
       .input_num     (man_off_reg[2]),
       .complement_num(adder_num[4])
@@ -384,10 +369,7 @@ module gemm #(
 
 
   assign complement_sign[5] = control ? 4'b1001 : 4'b0000;
-  complement #(
-      .sigWidth  (sigWidth),
-      .low_expand(low_expand)
-  ) u5_complement (
+  complement u5_complement (
       .sign          (complement_sign[5]),
       .input_num     (man_off_reg[3]),
       .complement_num(adder_num[5])
@@ -395,10 +377,7 @@ module gemm #(
 
 
   assign complement_sign[6] = control ? 4'b0101 : 4'b0100;
-  complement #(
-      .sigWidth  (sigWidth),
-      .low_expand(low_expand)
-  ) u6_complement (
+  complement u6_complement (
       .sign          (complement_sign[6]),
       .input_num     (man_off_reg[2]),
       .complement_num(adder_num[6])
@@ -406,10 +385,7 @@ module gemm #(
 
 
   assign complement_sign[7] = control ? 4'b0101 : 4'b0100;
-  complement #(
-      .sigWidth  (sigWidth),
-      .low_expand(low_expand)
-  ) u7_complement (
+  complement u7_complement (
       .sign          (complement_sign[7]),
       .input_num     (man_off_reg[3]),
       .complement_num(adder_num[7])

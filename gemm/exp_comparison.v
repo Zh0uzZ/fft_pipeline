@@ -1,3 +1,5 @@
+// find max exponent in 4 exponents
+
 module exp_comparison #(
   parameter expWidth = 4
 ) (

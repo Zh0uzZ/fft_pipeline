@@ -1,3 +1,6 @@
+// find max exponent in 64 exponents
+
+
 module find_max_exp #(
     parameter expWidth = 4
 ) (

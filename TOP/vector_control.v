@@ -41,33 +41,33 @@ module vector_control (
   wire [  `SFPWIDTH-1:0] wire_vector_output_real[ 3:0];
   wire [  `SFPWIDTH-1:0] wire_vector_output_imag[ 3:0];
 
-  generate
-    for (k = 0; k < 32; k = k + 1) begin
-      // assign wire_input_real[k]   = input_real[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
-      // assign wire_input_imag[k]   = input_imag[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
-      assign wire_output_real[k] = output_real[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
-      assign wire_output_imag[k] = output_imag[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
-      // assign wire_twiddle_real[k] = twiddle_real[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
-      // assign wire_twiddle_imag[k] = twiddle_imag[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
-      // assign wire_vector_output_real[k] = vector_output_real[0][`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
-      // assign wire_vector_output_imag[k] = vector_output_imag[0][`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
-    end
-  endgenerate
+  // generate
+  //   for (k = 0; k < 32; k = k + 1) begin
+  //     // assign wire_input_real[k]   = input_real[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
+  //     // assign wire_input_imag[k]   = input_imag[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
+  //     assign wire_output_real[k] = output_real[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
+  //     assign wire_output_imag[k] = output_imag[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
+  //     // assign wire_twiddle_real[k] = twiddle_real[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
+  //     // assign wire_twiddle_imag[k] = twiddle_imag[`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
+  //     // assign wire_vector_output_real[k] = vector_output_real[0][`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
+  //     // assign wire_vector_output_imag[k] = vector_output_imag[0][`SFPWIDTH*(k+1)-1:`SFPWIDTH*k];
+  //   end
+  // endgenerate
 
 //计数方式判断
   always @(posedge clk or negedge rst) begin
     if (~rst) begin
-      for (i = 0; i < 8; i = i + 1) begin
-        vector_input_real[i] = {(`SFPWIDTH * 4 - 1) {1'b0}};
-      end
-      for (i = 0; i < 8; i = i + 1) begin
-        vector_input_imag[i] = {(`SFPWIDTH * 4 - 1) {1'b0}};
-      end
+      // for (i = 0; i < 8; i = i + 1) begin
+      //   vector_input_real[i] = {(`SFPWIDTH * 4 - 1) {1'b0}};
+      // end
+      // for (i = 0; i < 8; i = i + 1) begin
+      //   vector_input_imag[i] = {(`SFPWIDTH * 4 - 1) {1'b0}};
+      // end
       vector_start <= 0;
       fft_size_reg <= 0;
       fft_done <= 0;
-      output_real <= 0;
-      output_imag <= 0;
+      // output_real <= 0;
+      // output_imag <= 0;
       control[0] <= 2'b11;
       control[1] <= 2'b11;
       control[2] <= 2'b00;

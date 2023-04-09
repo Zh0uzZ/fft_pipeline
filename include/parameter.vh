@@ -8,3 +8,7 @@
 `define SIGWIDTH `significand
 `define LOW_EXPAND 2
 `define FIXWIDTH 21
+
+
+
+`define FFTsfpw parameter nb=`formatSFP

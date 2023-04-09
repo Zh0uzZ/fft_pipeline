@@ -36,16 +36,16 @@ module vector_size4 (
   wire [formatWidth-1:0] wire_twiddle_real [3:0];
   wire [formatWidth-1:0] wire_twiddle_imag [3:0];
   genvar j;
-  generate
-    for (j = 0; j < 4; j = j + 1) begin
-      assign wire_input_real[j] = input_real[formatWidth*(j+1)-1:formatWidth*j];
-      assign wire_input_imag[j] = input_imag[formatWidth*(j+1)-1:formatWidth*j];
-      assign wire_output_real_1[j] = output_real[formatWidth*(j+1)-1:formatWidth*j];
-      assign wire_output_imag_1[j] = output_imag[formatWidth*(j+1)-1:formatWidth*j];
-      // assign wire_twiddle_real[j] = twiddle_real[formatWidth*(j+1)-1:formatWidth*j];
-      // assign wire_twiddle_imag[j] = twiddle_imag[formatWidth*(j+1)-1:formatWidth*j];
-    end
-  endgenerate
+  // generate
+  //   for (j = 0; j < 4; j = j + 1) begin
+  //     assign wire_input_real[j] = input_real[formatWidth*(j+1)-1:formatWidth*j];
+  //     assign wire_input_imag[j] = input_imag[formatWidth*(j+1)-1:formatWidth*j];
+  //     assign wire_output_real_1[j] = output_real[formatWidth*(j+1)-1:formatWidth*j];
+  //     assign wire_output_imag_1[j] = output_imag[formatWidth*(j+1)-1:formatWidth*j];
+  //     // assign wire_twiddle_real[j] = twiddle_real[formatWidth*(j+1)-1:formatWidth*j];
+  //     // assign wire_twiddle_imag[j] = twiddle_imag[formatWidth*(j+1)-1:formatWidth*j];
+  //   end
+  // endgenerate
 
 
 
