@@ -44,13 +44,13 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
   reg  [             3:0] i;
   wire [(expWidth*4-1):0] exp_offset_num      [3:0];
   reg  [(expWidth*4-1):0] exp_offset_num_reg  [3:0];
-  wire [FIXWIDTH*4-1:0  ] man_off             [3:0];
-  reg  [FIXWIDTH*4-1:0  ] man_off_reg         [3:0];
+  wire [FIXWIDTH*4-1:0  ] sig_off             [3:0];
+  reg  [FIXWIDTH*4-1:0  ] sig_off_reg         [3:0];
   wire [FIXWIDTH*4-1:0  ] adder_num           [7:0];
   reg  [FIXWIDTH*4-1:0  ] adder_num_reg       [7:0];
 
-  wire [  FIXWIDTH-1:0] mantissa            [7:0];
-  reg  [  FIXWIDTH-1:0] mantissa_reg        [7:0];
+  wire [  FIXWIDTH-1:0] significand            [7:0];
+  reg  [  FIXWIDTH-1:0] significand_reg        [7:0];
 
   wire [              formatWidth-1:0] sfpout              [7:0];
 
@@ -62,13 +62,13 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
         exp_offset_num_reg[i] <= {(expWidth * 4) {1'b0}};
       end
       for (i = 0; i < 4; i = i + 1) begin
-        man_off_reg[i] <= {(40) {1'b0}};
+        sig_off_reg[i] <= {(40) {1'b0}};
       end
       for (i = 0; i < 8; i = i + 1) begin
         adder_num_reg[i] <= {(40) {1'b0}};
       end
       for (i = 0; i < 8; i = i + 1) begin
-        mantissa_reg[i] <= {(sigWidth + 4 + low_expand) {1'b0}};
+        significand_reg[i] <= {(sigWidth + 4 + low_expand) {1'b0}};
       end
       output_real <= 36'b0;
       output_imag <= 36'b0;
@@ -78,7 +78,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       end
 
       for (i = 0; i < 4; i = i + 1) begin
-        man_off_reg[i] <= man_off[i];
+        sig_off_reg[i] <= sig_off[i];
       end
 
       for (i = 0; i < 8; i = i + 1) begin
@@ -86,7 +86,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       end
 
       for (i = 0; i < 8; i = i + 1) begin
-        mantissa_reg[i] <= mantissa[i];
+        significand_reg[i] <= significand[i];
       end
 
       begin
@@ -197,8 +197,8 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
   assign complement_sign[6] = control ? 4'b0101 : 4'b0100;
   assign complement_sign[7] = control ? 4'b0101 : 4'b0100;
 
-  wire [           3:0] man_shifter_sign    [3:0];
-  wire [4*sigWidth-1:0] man_shifter_input   [3:0];
+  wire [           3:0] sig_shifter_sign    [3:0];
+  wire [4*sigWidth-1:0] sig_shifter_input   [3:0];
 
   reg [formatWidth*4-1:0] input_real_ff , input_imag_ff;
   always@(posedge clk or negedge rst) begin
@@ -211,7 +211,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
     end
   end
 
-  assign man_shifter_sign[0] = control ? {
+  assign sig_shifter_sign[0] = control ? {
       input_real_ff[formatWidth*4-1],
       input_real_ff[formatWidth*3-1],
       input_real_ff[formatWidth*2-1],
@@ -221,7 +221,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       input_real_ff[formatWidth*3-1],
       2'b00
     };
-  assign man_shifter_input[0] = control ? {
+  assign sig_shifter_input[0] = control ? {
       input_real_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
       input_real_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
       input_real_ff[(formatWidth*2-2-expWidth):(formatWidth*1)],
@@ -231,19 +231,22 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       input_real_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
       8'b0000_0000
     } ;
-  man_shifter #(  //real[3:0]
+  SIG_SHIFTER #(  //real[3:0]
       .expWidth  (expWidth),
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
-  ) u0_man_shifter (
-      .exp_offset_num(exp_offset_num_reg[0]),
-      .mantissa      (man_shifter_input[0]),
-      .sign          (man_shifter_sign[0]),
-      .man_off       (man_off[0])
+  ) u0_sig_shifter (
+      .exp_offset_num  (exp_offset_num_reg[0]),
+      .significand     (sig_shifter_input[0]),
+      .sign            (sig_shifter_sign[0]),
+      .complement_sign1(complement_sign[0]),
+      .complement_sign2(complement_sign[2]),
+      .adder_num1      (adder_num[0]),
+      .adder_num2      (adder_num[2])
   );
 
 
-  assign man_shifter_sign[1] = control ? {
+  assign sig_shifter_sign[1] = control ? {
       input_real_ff[formatWidth*4-1],
       input_real_ff[formatWidth*2-1],
       input_imag_ff[formatWidth*3-1],
@@ -253,7 +256,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       input_real_ff[formatWidth*1-1],
       2'b00
     };
-  assign man_shifter_input[1] = control ? {
+  assign sig_shifter_input[1] = control ? {
       input_real_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
       input_real_ff[(formatWidth*2-2-expWidth):(formatWidth*1)],
       input_imag_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
@@ -263,19 +266,22 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       input_real_ff[(formatWidth*1-2-expWidth):0],
       8'b0000_0000
     } ;
-  man_shifter #(  //real[3] , real[1] , imag[2] , imag[0]
+  SIG_SHIFTER #(  //real[3] , real[1] , imag[2] , imag[0]
       .expWidth  (expWidth),
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
-  ) u1_man_shifter (
-      .exp_offset_num(exp_offset_num_reg[1]),
-      .mantissa      (man_shifter_input[1]),
-      .sign          (man_shifter_sign[1]),
-      .man_off       (man_off[1])
+  ) u1_sig_shifter (
+      .exp_offset_num  (exp_offset_num_reg[1]),
+      .significand     (sig_shifter_input[1]),
+      .sign            (sig_shifter_sign[1]),
+      .complement_sign1(complement_sign[1]),
+      .complement_sign2(complement_sign[3]),
+      .adder_num1      (adder_num[1]),
+      .adder_num2      (adder_num[3])
   );
 
 
-  assign man_shifter_sign[2] = control ? {
+  assign sig_shifter_sign[2] = control ? {
       input_imag_ff[formatWidth*4-1],
       input_imag_ff[formatWidth*3-1],
       input_imag_ff[formatWidth*2-1],
@@ -285,7 +291,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       input_imag_ff[formatWidth*3-1],
       2'b00
     };
-  assign man_shifter_input[2] = control ? {
+  assign sig_shifter_input[2] = control ? {
       input_imag_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
       input_imag_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
       input_imag_ff[(formatWidth*2-2-expWidth):(formatWidth*1)],
@@ -295,19 +301,22 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       input_imag_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
       8'b0000_0000
     } ;
-  man_shifter #(  //imag[3:0]
+  SIG_SHIFTER #(  //imag[3:0]
       .expWidth  (expWidth),
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
-  ) u2_man_shifter (
+  ) u2_sig_shifter (
       .exp_offset_num(exp_offset_num_reg[2]),
-      .mantissa      (man_shifter_input[2]),
-      .sign          (man_shifter_sign[2]),
-      .man_off       (man_off[2])
+      .significand   (sig_shifter_input[2]),
+      .sign          (sig_shifter_sign[2]),
+      .complement_sign1(complement_sign[4]),
+      .complement_sign2(complement_sign[6]),
+      .adder_num1(adder_num[4]),
+      .adder_num2(adder_num[6])
   );
 
 
-  assign man_shifter_sign[3] = control ? {
+  assign sig_shifter_sign[3] = control ? {
       input_real_ff[formatWidth*3-1],
       input_real_ff[formatWidth*1-1],
       input_imag_ff[formatWidth*4-1],
@@ -317,7 +326,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       input_imag_ff[formatWidth*1-1],
       2'b00
     };
-  assign man_shifter_input[3] = control ? {
+  assign sig_shifter_input[3] = control ? {
       input_real_ff[(formatWidth*3-2-expWidth):(formatWidth*2)],
       input_real_ff[(formatWidth*1-2-expWidth):(formatWidth*0)],
       input_imag_ff[(formatWidth*4-2-expWidth):(formatWidth*3)],
@@ -327,15 +336,18 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       input_imag_ff[(formatWidth*1-2-expWidth):0],
       8'b0000_0000
     } ;
-  man_shifter #(  //real[2] real[0] imag[3] imag[1]
+  SIG_SHIFTER #(  //real[2] real[0] imag[3] imag[1]
       .expWidth  (expWidth),
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
-  ) u3_man_shifter (
+  ) u3_sig_shifter (
       .exp_offset_num(exp_offset_num_reg[3]),
-      .mantissa      (man_shifter_input[3]),
-      .sign          (man_shifter_sign[3]),
-      .man_off       (man_off[3])
+      .significand   (sig_shifter_input[3]),
+      .sign          (sig_shifter_sign[3]),
+      .complement_sign1(complement_sign[5]),
+      .complement_sign2(complement_sign[7]),
+      .adder_num1(adder_num[5]),
+      .adder_num2(adder_num[7])
   );
 
 
@@ -346,81 +358,81 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
   ) u0_adder (
-      .manOffset(adder_num_reg[0]),
-      .mantissa (mantissa[0])
+      .sigOffset(adder_num_reg[0]),
+      .significand (significand[0])
   );
   adder_4in #(
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
   ) u1_adder (
-      .manOffset(adder_num_reg[1]),
-      .mantissa (mantissa[1])
+      .sigOffset(adder_num_reg[1]),
+      .significand (significand[1])
   );
   adder_4in #(
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
   ) u2_adder (
-      .manOffset(adder_num_reg[2]),
-      .mantissa (mantissa[2])
+      .sigOffset(adder_num_reg[2]),
+      .significand (significand[2])
   );
   adder_4in #(
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
   ) u3_adder (
-      .manOffset(adder_num_reg[3]),
-      .mantissa (mantissa[3])
+      .sigOffset(adder_num_reg[3]),
+      .significand (significand[3])
   );
   adder_4in #(
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
   ) u4_adder (
-      .manOffset(adder_num_reg[4]),
-      .mantissa (mantissa[4])
+      .sigOffset(adder_num_reg[4]),
+      .significand (significand[4])
   );
   adder_4in #(
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
   ) u5_adder (
-      .manOffset(adder_num_reg[5]),
-      .mantissa (mantissa[5])
+      .sigOffset(adder_num_reg[5]),
+      .significand (significand[5])
   );
   adder_4in #(
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
   ) u6_adder (
-      .manOffset(adder_num_reg[6]),
-      .mantissa (mantissa[6])
+      .sigOffset(adder_num_reg[6]),
+      .significand (significand[6])
   );
   adder_4in #(
       .sigWidth  (sigWidth),
       .low_expand(low_expand)
   ) u7_adder (
-      .manOffset(adder_num_reg[7]),
-      .mantissa (mantissa[7])
+      .sigOffset(adder_num_reg[7]),
+      .significand (significand[7])
   );
 
 
 
-  //5CYCLE ， 将得到的10bit定点数转化为小浮点数
+  //4CYCLE ， 将得到的10bit定点数转化为小浮点数
   //将10bit定点数转化为sfp数
   reg [expWidth-1:0] max_exp_ff1 [3:0];
   reg [expWidth-1:0] max_exp_ff2 [3:0];
   reg [expWidth-1:0] max_exp_ff3 [3:0];
-  reg [expWidth-1:0] max_exp_ff4 [3:0];
+  // reg [expWidth-1:0] max_exp_ff4 [3:0];
   always@(posedge clk or negedge rst) begin
     if(~rst) begin
       for (i = 0; i < 4; i = i + 1) begin
         max_exp_ff1[i] <= 0;
         max_exp_ff2[i] <= 0;
         max_exp_ff3[i] <= 0;
-        max_exp_ff4[i] <= 0;
+        // max_exp_ff4[i] <= 0;
       end
     end else begin
       for (i = 0; i < 4; i = i + 1) begin
         max_exp_ff1[i] <= max_exp[i];
         max_exp_ff2[i] <= max_exp_ff1[i];
         max_exp_ff3[i] <= max_exp_ff2[i];
-        max_exp_ff4[i] <= max_exp_ff3[i];
+        // max_exp_ff4[i] <= max_exp_ff3[i];
       end
     end
   end
@@ -433,7 +445,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
           .formatWidth(formatWidth),
           .low_expand(low_expand)
       ) u_fix2sfp (
-          .fixin  (mantissa_reg[j]),
+          .fixin  (significand_reg[j]),
           .max_exp(max_exp_ff4[j]),
           .sfpout (sfpout[j])
       );
@@ -447,7 +459,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
           .formatWidth(formatWidth),
           .low_expand(low_expand)
       ) u_fix2sfp (
-          .fixin  (mantissa_reg[j]),
+          .fixin  (significand_reg[j]),
           .max_exp(max_exp_ff4[j-2]),
           .sfpout (sfpout[j])
       );
@@ -461,7 +473,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
           .formatWidth(formatWidth),
           .low_expand(low_expand)
       ) u_fix2sfp (
-          .fixin  (mantissa_reg[j]),
+          .fixin  (significand_reg[j]),
           .max_exp(max_exp_ff4[j-4]),
           .sfpout (sfpout[j])
       );
