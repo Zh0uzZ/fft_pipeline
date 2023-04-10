@@ -1,10 +1,12 @@
-// control[1:0] , control[1] = 1 : size4  
+// control[1:0] , control[1] = 1 : size4  0:size2
+// control[0],only GEMM 
 
-module gemm #(
-    parameter expWidth    = 4,
-    parameter sigWidth    = 4,
-    parameter formatWidth = 9,
-    parameter low_expand  = 2
+`include "parameter.vh"
+module GEMM #(
+    parameter expWidth    = `EXPWIDTH,
+    parameter sigWidth    = `SIGWIDTH,
+    parameter formatWidth = `SFPWIDTH,
+    parameter low_expand  = `LOW_EXPAND
 ) (
     input                              clk,
     input                              rst,
@@ -17,6 +19,7 @@ module gemm #(
     output reg                         gemm_done
 );
 
+localparam FIXWIDTH = sigWidth+4+low_expand;
   //debug signals 
   wire [formatWidth-1:0] wire_input_real     [3:0];
   wire [formatWidth-1:0] wire_input_imag     [3:0];
@@ -38,16 +41,16 @@ module gemm #(
 
 
 
-  reg  [                          3:0] i;
-  wire [             (expWidth*4-1):0] exp_offset_num      [3:0];
-  reg  [             (expWidth*4-1):0] exp_offset_num_reg  [3:0];
-  wire [(sigWidth+4+low_expand)*4-1:0] man_off             [3:0];
-  reg  [(sigWidth+4+low_expand)*4-1:0] man_off_reg         [3:0];
-  wire [(sigWidth+4+low_expand)*4-1:0] adder_num           [7:0];
-  reg  [(sigWidth+4+low_expand)*4-1:0] adder_num_reg       [7:0];
+  reg  [             3:0] i;
+  wire [(expWidth*4-1):0] exp_offset_num      [3:0];
+  reg  [(expWidth*4-1):0] exp_offset_num_reg  [3:0];
+  wire [FIXWIDTH*4-1:0  ] man_off             [3:0];
+  reg  [FIXWIDTH*4-1:0  ] man_off_reg         [3:0];
+  wire [FIXWIDTH*4-1:0  ] adder_num           [7:0];
+  reg  [FIXWIDTH*4-1:0  ] adder_num_reg       [7:0];
 
-  wire [    sigWidth+4+low_expand-1:0] mantissa            [7:0];
-  reg  [    sigWidth+4+low_expand-1:0] mantissa_reg        [7:0];
+  wire [  FIXWIDTH-1:0] mantissa            [7:0];
+  reg  [  FIXWIDTH-1:0] mantissa_reg        [7:0];
 
   wire [              formatWidth-1:0] sfpout              [7:0];
 
@@ -182,6 +185,18 @@ module gemm #(
 
   //2CYCLE
   //根据max_exp 求得significand移位结果,并进行尾数补齐为10bit的定点数
+
+
+  wire [3:0] complement_sign     [7:0];
+  assign complement_sign[0] = control ? 4'b0000 : 4'b0000;
+  assign complement_sign[1] = control ? 4'b0101 : 4'b0000;
+  assign complement_sign[2] = control ? 4'b0101 : 4'b0100;
+  assign complement_sign[3] = control ? 4'b0110 : 4'b0100;
+  assign complement_sign[4] = control ? 4'b0000 : 4'b0000;
+  assign complement_sign[5] = control ? 4'b1001 : 4'b0000;
+  assign complement_sign[6] = control ? 4'b0101 : 4'b0100;
+  assign complement_sign[7] = control ? 4'b0101 : 4'b0100;
+
   wire [           3:0] man_shifter_sign    [3:0];
   wire [4*sigWidth-1:0] man_shifter_input   [3:0];
 
@@ -325,75 +340,7 @@ module gemm #(
 
 
 
-  //3CYCLE , 取其4个加数的补码
-  //求出adder_4in的加数
-
-  wire [3:0] complement_sign     [7:0];
-  assign complement_sign[0] = control ? 4'b0000 : 4'b0000;
-  complement u0_complement (
-      .sign          (complement_sign[0]),
-      .input_num     (man_off_reg[0]),
-      .complement_num(adder_num[0])
-  );
-
-  assign complement_sign[1] = control ? 4'b0101 : 4'b0000;
-  complement u1_complement (
-      .sign          (complement_sign[1]),
-      .input_num     (man_off_reg[1]),
-      .complement_num(adder_num[1])
-  );
-
-
-  assign complement_sign[2] = control ? 4'b0101 : 4'b0100;
-  complement u2_complement (
-      .sign          (complement_sign[2]),
-      .input_num     (man_off_reg[0]),
-      .complement_num(adder_num[2])
-  );
-
-
-  assign complement_sign[3] = control ? 4'b0110 : 4'b0100;
-  complement u3_complement (
-      .sign          (complement_sign[3]),
-      .input_num     (man_off_reg[1]),
-      .complement_num(adder_num[3])
-  );
-
-
-  assign complement_sign[4] = control ? 4'b0000 : 4'b0000;
-  complement u4_complement (
-      .sign          (complement_sign[4]),
-      .input_num     (man_off_reg[2]),
-      .complement_num(adder_num[4])
-  );
-
-
-  assign complement_sign[5] = control ? 4'b1001 : 4'b0000;
-  complement u5_complement (
-      .sign          (complement_sign[5]),
-      .input_num     (man_off_reg[3]),
-      .complement_num(adder_num[5])
-  );
-
-
-  assign complement_sign[6] = control ? 4'b0101 : 4'b0100;
-  complement u6_complement (
-      .sign          (complement_sign[6]),
-      .input_num     (man_off_reg[2]),
-      .complement_num(adder_num[6])
-  );
-
-
-  assign complement_sign[7] = control ? 4'b0101 : 4'b0100;
-  complement u7_complement (
-      .sign          (complement_sign[7]),
-      .input_num     (man_off_reg[3]),
-      .complement_num(adder_num[7])
-  );
-
-
-
-  //4CYCLE 计算4个定点补码的和
+  //3CYCLE 计算4个定点补码的和
   //计算加法的部分
   adder_4in #(
       .sigWidth  (sigWidth),
