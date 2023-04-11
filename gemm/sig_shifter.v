@@ -23,14 +23,7 @@ module SIG_SHIFTER #(
     end
   endgenerate
 
-  generate
-    for (i = 0; i < 4; i = i + 1) begin : ushifter1
-      assign adder_num1[`SIGNED_WIDTH*(i+1)-1-:`SIGNED_WIDTH] = {sign[i]^complement_sign1[i] , sig_off[i]};
-      assign adder_num2[`SIGNED_WIDTH*(i+1)-1-:`SIGNED_WIDTH] = {sign[i]^complement_sign2[i] , sig_off[i]};
-    end
-  endgenerate
-
-  wire [7:0] zero;
+  wire [3:0] zero;
   wire [7:0] complement_sign;
   wire [`SIGNED_WIDTH*8-1:0] complement_num_buf;
   generate 

@@ -19,7 +19,7 @@ module GEMM #(
     output reg                         gemm_done
 );
 
-localparam FIXWIDTH = sigWidth+4+low_expand;
+localparam SIGNED_WIDTH = sigWidth+4+low_expand;
   //debug signals 
   wire [formatWidth-1:0] wire_input_real     [3:0];
   wire [formatWidth-1:0] wire_input_imag     [3:0];
@@ -41,18 +41,18 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
 
 
 
-  reg  [             3:0] i;
-  wire [(expWidth*4-1):0] exp_offset_num      [3:0];
-  reg  [(expWidth*4-1):0] exp_offset_num_reg  [3:0];
-  wire [FIXWIDTH*4-1:0  ] sig_off             [3:0];
-  reg  [FIXWIDTH*4-1:0  ] sig_off_reg         [3:0];
-  wire [FIXWIDTH*4-1:0  ] adder_num           [7:0];
-  reg  [FIXWIDTH*4-1:0  ] adder_num_reg       [7:0];
+  reg  [             3:0  ] i;
+  wire [(expWidth*4-1):0  ] exp_offset_num      [3:0];
+  reg  [(expWidth*4-1):0  ] exp_offset_num_reg  [3:0];
+  wire [SIGNED_WIDTH*4-1:0] sig_off             [3:0];
+  reg  [SIGNED_WIDTH*4-1:0] sig_off_reg         [3:0];
+  wire [SIGNED_WIDTH*4-1:0] adder_num           [7:0];
+  reg  [SIGNED_WIDTH*4-1:0] adder_num_reg       [7:0];
 
-  wire [  FIXWIDTH-1:0] significand            [7:0];
-  reg  [  FIXWIDTH-1:0] significand_reg        [7:0];
+  wire [  SIGNED_WIDTH-1:0] significand         [7:0];
+  reg  [  SIGNED_WIDTH-1:0] significand_reg     [7:0];
 
-  wire [              formatWidth-1:0] sfpout              [7:0];
+  wire [   formatWidth-1:0] sfpout              [7:0];
 
 //触发器数据
 
@@ -446,7 +446,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
           .low_expand(low_expand)
       ) u_fix2sfp (
           .fixin  (significand_reg[j]),
-          .max_exp(max_exp_ff4[j]),
+          .max_exp(max_exp_ff3[j]),
           .sfpout (sfpout[j])
       );
     end
@@ -460,7 +460,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
           .low_expand(low_expand)
       ) u_fix2sfp (
           .fixin  (significand_reg[j]),
-          .max_exp(max_exp_ff4[j-2]),
+          .max_exp(max_exp_ff3[j-2]),
           .sfpout (sfpout[j])
       );
     end
@@ -474,7 +474,7 @@ localparam FIXWIDTH = sigWidth+4+low_expand;
           .low_expand(low_expand)
       ) u_fix2sfp (
           .fixin  (significand_reg[j]),
-          .max_exp(max_exp_ff4[j-4]),
+          .max_exp(max_exp_ff3[j-4]),
           .sfpout (sfpout[j])
       );
     end

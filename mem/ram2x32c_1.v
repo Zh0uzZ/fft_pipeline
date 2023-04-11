@@ -16,30 +16,19 @@
 //`timescale 1 ns / 1 ps
 `include "parameter.vh"	 
 
-module RAM2x64C_1 ( CLK ,ED ,WE ,ODD ,ADDRW ,ADDRR ,DR ,DI ,DOR ,DOI );
+module RAM2x32C_1 ( CLK ,ED ,WE ,ODD ,ADDRW ,ADDRR ,DR ,DI ,DOR ,DOI );
 	`FFTsfpw	
 	
 	
-	output [nb-1:0] DOR ;
-	wire [nb-1:0] DOR ;
-	output [nb-1:0] DOI ;
-	wire [nb-1:0] DOI ;
-	input CLK ;
-	wire CLK ;
-	input ED ;
-	wire ED ;
-	input WE ;	     //write enable
-	wire WE ;
-	input ODD ;	  // RAM part switshing
-	wire ODD ;
-	input [5:0] ADDRW ;
-	wire [5:0] ADDRW ;
-	input [5:0] ADDRR ;
-	wire [5:0] ADDRR ;
-	input [nb-1:0] DR ;
-	wire [nb-1:0] DR ;
-	input [nb-1:0] DI ;
-	wire [nb-1:0] DI ;	
+	output wire [nb-1:0] DOR ;
+	output wire [nb-1:0] DOI ;
+	input wire CLK , ED;
+	input wire WE ;	     //write enable
+	input wire ODD ;	  // RAM part switshing
+	input wire [5:0] ADDRW ;
+	input wire [5:0] ADDRR ;
+	input wire [nb-1:0] DR ;
+	input wire [nb-1:0] DI ;
 	
 	reg	oddd,odd2;
 	always @( posedge CLK) begin //switch which reswiches the RAM parts
@@ -74,19 +63,19 @@ module RAM2x64C_1 ( CLK ,ED ,WE ,ODD ,ADDRW ,ADDRR ,DR ,DI ,DOR ,DOI );
 	
 	`else 		
 	//Two-port RAM is used
-	wire [6:0] addrr2 = {ODD,ADDRR};
-	wire [6:0] addrw2 = {~ODD,ADDRW};
+	wire [5:0] addrr2 = {ODD,ADDRR};
+	wire [5:0] addrw2 = {~ODD,ADDRW};
 	wire [2*nb-1:0] di= {DR,DI} ;	
 	wire [2*nb-1:0] doi;	
 	
 	reg [2*nb-1:0] ram [127:0];
-	reg [6:0] read_addra;
+	reg [5:0] read_addra;
 	always @(posedge CLK) begin
 			if (ED)
 				begin
 					if (WE)
 						ram[addrw2] <= di;
-					read_addra <= addrr2;
+						read_addra <= addrr2;
 				end
 		end
 	assign doi = ram[read_addra];				 
