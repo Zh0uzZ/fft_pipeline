@@ -40,15 +40,15 @@ module SIG_SHIFTER #(
   assign complement_sign[5] = sign[1] ^ complement_sign2[1];
   assign complement_sign[6] = sign[2] ^ complement_sign2[2];
   assign complement_sign[7] = sign[3] ^ complement_sign2[3];
-  assign complement_num_buf[`SIGNED_WIDTH*1-2:`SIGNED_WIDTH*0] = complement_sign[0] ? ~sig_off[`SIGNED_WIDTH*1-2:`SIGNED_WIDTH*0] + 1 : sig_off[`SIGNED_WIDTH*1-2:`SIGNED_WIDTH*0];
-  assign complement_num_buf[`SIGNED_WIDTH*2-2:`SIGNED_WIDTH*1] = complement_sign[1] ? ~sig_off[`SIGNED_WIDTH*2-2:`SIGNED_WIDTH*1] + 1 : sig_off[`SIGNED_WIDTH*2-2:`SIGNED_WIDTH*1];
-  assign complement_num_buf[`SIGNED_WIDTH*3-2:`SIGNED_WIDTH*2] = complement_sign[2] ? ~sig_off[`SIGNED_WIDTH*3-2:`SIGNED_WIDTH*2] + 1 : sig_off[`SIGNED_WIDTH*3-2:`SIGNED_WIDTH*2];
-  assign complement_num_buf[`SIGNED_WIDTH*4-2:`SIGNED_WIDTH*3] = complement_sign[3] ? ~sig_off[`SIGNED_WIDTH*4-2:`SIGNED_WIDTH*3] + 1 : sig_off[`SIGNED_WIDTH*4-2:`SIGNED_WIDTH*3];
+  assign complement_num_buf[`SIGNED_WIDTH*1-2:`SIGNED_WIDTH*0] = complement_sign[0] ? ~sig_off[0] + 1 : sig_off[0];
+  assign complement_num_buf[`SIGNED_WIDTH*2-2:`SIGNED_WIDTH*1] = complement_sign[1] ? ~sig_off[1] + 1 : sig_off[1];
+  assign complement_num_buf[`SIGNED_WIDTH*3-2:`SIGNED_WIDTH*2] = complement_sign[2] ? ~sig_off[2] + 1 : sig_off[2];
+  assign complement_num_buf[`SIGNED_WIDTH*4-2:`SIGNED_WIDTH*3] = complement_sign[3] ? ~sig_off[3] + 1 : sig_off[3];
 
-  assign complement_num_buf[`SIGNED_WIDTH*5-2:`SIGNED_WIDTH*4] = complement_sign[4] ? ~sig_off[`SIGNED_WIDTH*1-2:`SIGNED_WIDTH*0] + 1 : sig_off[`SIGNED_WIDTH*1-2:`SIGNED_WIDTH*0];
-  assign complement_num_buf[`SIGNED_WIDTH*6-2:`SIGNED_WIDTH*5] = complement_sign[5] ? ~sig_off[`SIGNED_WIDTH*2-2:`SIGNED_WIDTH*1] + 1 : sig_off[`SIGNED_WIDTH*2-2:`SIGNED_WIDTH*1];
-  assign complement_num_buf[`SIGNED_WIDTH*7-2:`SIGNED_WIDTH*6] = complement_sign[6] ? ~sig_off[`SIGNED_WIDTH*3-2:`SIGNED_WIDTH*2] + 1 : sig_off[`SIGNED_WIDTH*3-2:`SIGNED_WIDTH*2];
-  assign complement_num_buf[`SIGNED_WIDTH*8-2:`SIGNED_WIDTH*7] = complement_sign[7] ? ~sig_off[`SIGNED_WIDTH*4-2:`SIGNED_WIDTH*3] + 1 : sig_off[`SIGNED_WIDTH*4-2:`SIGNED_WIDTH*3];
+  assign complement_num_buf[`SIGNED_WIDTH*5-2:`SIGNED_WIDTH*4] = complement_sign[4] ? ~sig_off[0] + 1 : sig_off[0];
+  assign complement_num_buf[`SIGNED_WIDTH*6-2:`SIGNED_WIDTH*5] = complement_sign[5] ? ~sig_off[1] + 1 : sig_off[1];
+  assign complement_num_buf[`SIGNED_WIDTH*7-2:`SIGNED_WIDTH*6] = complement_sign[6] ? ~sig_off[2] + 1 : sig_off[2];
+  assign complement_num_buf[`SIGNED_WIDTH*8-2:`SIGNED_WIDTH*7] = complement_sign[7] ? ~sig_off[3] + 1 : sig_off[3];
 
 
   assign complement_num_buf[`SIGNED_WIDTH*1-1] = complement_sign[0];

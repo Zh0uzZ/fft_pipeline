@@ -25,8 +25,8 @@ module RAM2x32C_1 ( CLK ,ED ,WE ,ODD ,ADDRW ,ADDRR ,DR ,DI ,DOR ,DOI );
 	input wire CLK , ED;
 	input wire WE ;	     //write enable
 	input wire ODD ;	  // RAM part switshing
-	input wire [5:0] ADDRW ;
-	input wire [5:0] ADDRR ;
+	input wire [`ADDR_Width-1:0] ADDRW ;
+	input wire [`ADDR_Width-1:0] ADDRR ;
 	input wire [nb-1:0] DR ;
 	input wire [nb-1:0] DI ;
 	
@@ -41,12 +41,12 @@ module RAM2x32C_1 ( CLK ,ED ,WE ,ODD ,ADDRW ,ADDRR ,DR ,DI ,DOR ,DOI );
 	//One-port RAMs are used
 	wire we0,we1;
 	wire	[nb-1:0] dor0,dor1,doi0,doi1;
-	wire	[5:0] addr0,addr1;		   
+	wire	[`ADDR_Width-1:0] addr0,addr1;		   
 	
 	
 	
 	assign	addr0 =ODD?  ADDRW: ADDRR;		//MUXA0
-	assign	addr1 = ~ODD? ADDRW:ADDRR;	// MUXA1
+	assign	addr1 = ~ODD? ADDRW:ADDRR;		// MUXA1
 	assign	we0   =ODD?  WE: 0;		     // MUXW0: 
 	assign	we1   =~ODD? WE: 0;			 // MUXW1:
 	
@@ -63,13 +63,13 @@ module RAM2x32C_1 ( CLK ,ED ,WE ,ODD ,ADDRW ,ADDRR ,DR ,DI ,DOR ,DOI );
 	
 	`else 		
 	//Two-port RAM is used
-	wire [5:0] addrr2 = {ODD,ADDRR};
-	wire [5:0] addrw2 = {~ODD,ADDRW};
+	wire [`ADDR_Width:0] addrr2 = {ODD,ADDRR};
+	wire [`ADDR_Width:0] addrw2 = {~ODD,ADDRW};
 	wire [2*nb-1:0] di= {DR,DI} ;	
 	wire [2*nb-1:0] doi;	
 	
-	reg [2*nb-1:0] ram [127:0];
-	reg [5:0] read_addra;
+	reg [2*nb-1:0] ram [63:0];
+	reg [`ADDR_Width:0] read_addra;
 	always @(posedge CLK) begin
 			if (ED)
 				begin

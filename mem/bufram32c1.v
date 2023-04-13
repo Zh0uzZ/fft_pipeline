@@ -15,6 +15,7 @@
 `include "parameter.vh"	 
 
 module BUFRAM32C1 ( CLK ,RST ,ED ,START ,DR ,DI ,RDY ,DOR ,DOI );
+	parameter INV_ADDR=2;
 	`FFTsfpw
 	output reg RDY ;
 	output wire [nb-1:0] DOR ;
@@ -30,16 +31,16 @@ module BUFRAM32C1 ( CLK ,RST ,ED ,START ,DR ,DI ,RDY ,DOR ,DOI );
 	wire odd, we;
 	wire [`ADDR_Width - 1 : 0] addrw,addrr;
 	reg [`ADDR_Width:0] addr;
-	reg [7:0] ct2;		//counter for the RDY signal		 		  
+	reg [`ADDR_Width + 1:0] ct2;		//counter for the RDY signal		 		  
 	
 	always @(posedge CLK)	//   CTADDR
 		begin
-			if (RST) begin
-					addr<={`ADDR_Width(1'b0)};
+			if (~RST) begin
+					addr<={(`ADDR_Width){1'b0}};
 					ct2<= 6'b100001;  
 				RDY<=1'b0; end
 			else if (START) begin 
-					addr<={`ADDR_Width(1'b0)};
+					addr<={`ADDR_Width{1'b0}};
 					ct2<= 6'b000000;  
 				RDY<=1'b0;end
 			else if (ED)	begin
@@ -53,9 +54,9 @@ module BUFRAM32C1 ( CLK ,RST ,ED ,START ,DR ,DI ,RDY ,DOR ,DOI );
 		end
 			
 	
-assign	addrw=	addr[5:0];
-assign	odd=addr[6];	   			// signal which switches the 2 parts of the buffer
-assign	addrr={addr[1 : 0], addr[5 : 2]};	  // 4-th inverse output address
+assign	addrw=	addr[`ADDR_Width-1:0];
+assign	odd=addr[`ADDR_Width];	   			// signal which switches the 2 parts of the buffer
+assign	addrr={addr[INV_ADDR-1 : 0], addr[`ADDR_Width - 1 : INV_ADDR]};	  // 4-th inverse output address
 assign	we = ED;	  
 	
 	RAM2x32C_1 #(nb)	URAM(.CLK(CLK),.ED(ED),.WE(we),.ODD(odd),

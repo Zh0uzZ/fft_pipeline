@@ -16,28 +16,28 @@ module GEMM #(
     input      [(formatWidth*4-1) : 0] input_imag,
     output reg [(formatWidth*4-1) : 0] output_real,
     output reg [(formatWidth*4-1) : 0] output_imag,
-    output reg                         gemm_done
+    output reg                         ready
 );
 
 localparam SIGNED_WIDTH = sigWidth+4+low_expand;
-  //debug signals 
-  wire [formatWidth-1:0] wire_input_real     [3:0];
-  wire [formatWidth-1:0] wire_input_imag     [3:0];
-  wire [formatWidth-1:0] wire_output_real    [3:0];
-  wire [formatWidth-1:0] wire_output_imag    [3:0];
-  wire [formatWidth-1:0] wire_twiddle_real   [3:0];
-  wire [formatWidth-1:0] wire_twiddle_imag   [3:0];
-  genvar j;
-  generate
-    for (j = 0; j < 4; j = j + 1) begin
-      assign wire_input_real[j]  = input_real[formatWidth*(j+1)-1:formatWidth*j];
-      assign wire_input_imag[j]  = input_imag[formatWidth*(j+1)-1:formatWidth*j];
-      assign wire_output_real[j] = output_real[formatWidth*(j+1)-1:formatWidth*j];
-      assign wire_output_imag[j] = output_imag[formatWidth*(j+1)-1:formatWidth*j];
-      // assign wire_twiddle_real[j] = twiddle_real[formatWidth*(j+1)-1:formatWidth*j];
-      // assign wire_twiddle_imag[j] = twiddle_imag[formatWidth*(j+1)-1:formatWidth*j];
-    end
-  endgenerate
+genvar j;
+  // //debug signals 
+  // wire [formatWidth-1:0] wire_input_real     [3:0];
+  // wire [formatWidth-1:0] wire_input_imag     [3:0];
+  // wire [formatWidth-1:0] wire_output_real    [3:0];
+  // wire [formatWidth-1:0] wire_output_imag    [3:0];
+  // wire [formatWidth-1:0] wire_twiddle_real   [3:0];
+  // wire [formatWidth-1:0] wire_twiddle_imag   [3:0];
+  // generate
+  //   for (j = 0; j < 4; j = j + 1) begin
+  //     assign wire_input_real[j]  = input_real[formatWidth*(j+1)-1:formatWidth*j];
+  //     assign wire_input_imag[j]  = input_imag[formatWidth*(j+1)-1:formatWidth*j];
+  //     assign wire_output_real[j] = output_real[formatWidth*(j+1)-1:formatWidth*j];
+  //     assign wire_output_imag[j] = output_imag[formatWidth*(j+1)-1:formatWidth*j];
+  //     // assign wire_twiddle_real[j] = twiddle_real[formatWidth*(j+1)-1:formatWidth*j];
+  //     // assign wire_twiddle_imag[j] = twiddle_imag[formatWidth*(j+1)-1:formatWidth*j];
+  //   end
+  // endgenerate
 
 
 
@@ -89,14 +89,27 @@ localparam SIGNED_WIDTH = sigWidth+4+low_expand;
         significand_reg[i] <= significand[i];
       end
 
-      begin
-        output_real <= {sfpout[0], sfpout[1], sfpout[2], sfpout[3]};
-        output_imag <= {sfpout[4], sfpout[5], sfpout[6], sfpout[7]};
-      end
+      output_real <= {sfpout[0], sfpout[1], sfpout[2], sfpout[3]};
+      output_imag <= {sfpout[4], sfpout[5], sfpout[6], sfpout[7]};
 
     end
   end
 
+  //GEMM ready signal
+  reg [2:0] count_r;
+  always @(posedge clk or negedge rst) begin
+    if(~rst)
+      count_r <= 3'b111;
+    else if (start) 
+      count_r <= 3'b0;
+    else begin
+      ready <= 0;
+      if(count_r!=3'b111)
+        count_r <= count_r + 1;
+      if(count_r == 3'b010)
+        ready <= 1;
+    end
+  end
 
 
   //1CYCLE

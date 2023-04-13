@@ -1,8 +1,9 @@
 `include "parameter.vh"
-module WROM32(CLK,RST,START,OR,OI);
+module WROM32(CLK,RST,START, STAGE ,OR,OI,RDY);
     `FFTsfpw
-    input CLK,RST,START;
+    input CLK,RST,START,STAGE;
     output reg [nb*4-1:0] OR,OI;
+    output reg RDY;
 
     parameter [nb-1:0] wr0 = 9'b010000000;
     parameter [nb-1:0] wr1 = 9'b010000000;
@@ -36,7 +37,6 @@ module WROM32(CLK,RST,START,OR,OI);
     parameter [nb-1:0] wr29 = 9'b101111110;
     parameter [nb-1:0] wr30 = 9'b001011001;
     parameter [nb-1:0] wr31 = 9'b010000000;
-
 
 
     parameter [nb-1:0] wi0 = 9'b000000000;
@@ -73,15 +73,32 @@ module WROM32(CLK,RST,START,OR,OI);
     parameter [nb-1:0] wi31 = 9'b000000000;
 
 
-    reg [2:0] count;
+    reg [1:0] count;
+    reg [1:0] count_r;
+    reg [2:0] count_o;
     always @(posedge CLK or negedge RST) begin
         if(~RST) begin
+            count <= 0;
+            count_r <= 2'b11;
+            count_o <= 0;
         end else if (START) begin
+            count_r <= 0;
+            // count_o <= 0;
             count <= 0;
         end else begin
             count <= count + 1;
-            case(stage)
-            2'b0:   case(count)
+            RDY <= 0;
+            if(count_r != 2'b11)
+                count_r <= count_r + 1;
+            if(count_r == 2'b01) begin
+                count_o <= 0;
+                count <= 0;
+            end
+                // RDY <= 1;  
+            if(count == 2'b11)
+                count_o <= count_o + 1;
+            case(STAGE)
+            1'b0:   case(count_o)
                     3'd0: begin
                         OR <= {wr3,wr2,wr1,wr0};
                         OI <= {wi3,wi2,wi1,wi0};
@@ -115,7 +132,7 @@ module WROM32(CLK,RST,START,OR,OI);
                         OI <= {wi31,wi30,wi29,wi28};
                     end
                     endcase
-            2'b1:   case(count)
+            1'b1:   case(count_o)
                     3'd0,3'd2,3'd4,3'd6: begin
                         OR <= {wr3,wr2,wr1,wr0};
                         OI <= {wi3,wi2,wi1,wi0};

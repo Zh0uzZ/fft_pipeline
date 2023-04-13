@@ -5,16 +5,16 @@ module HADAMARD #(
     parameter formatWidth = 9,
     parameter low_expand  = 2
 ) (
-    input                          clk,
-    input                          rst,
-    input                          start,
-    input      [formatWidth*4-1:0] input_real,
-    input      [formatWidth*4-1:0] input_imag,
-    input      [formatWidth*4-1:0] twiddle_real,
-    input      [formatWidth*4-1:0] twiddle_imag,
-    output reg [formatWidth*4-1:0] output_real,
-    output reg [formatWidth*4-1:0] output_imag,
-    output reg                     hadamard_done
+    input                      clk,
+    input                      rst,
+    input                      start,
+    input  [formatWidth*4-1:0] input_real,
+    input  [formatWidth*4-1:0] input_imag,
+    input  [formatWidth*4-1:0] twiddle_real,
+    input  [formatWidth*4-1:0] twiddle_imag,
+    output [formatWidth*4-1:0] output_real,
+    output [formatWidth*4-1:0] output_imag,
+    output reg                 hadamard_done
 );
 
 
@@ -39,8 +39,6 @@ module HADAMARD #(
     if (~rst) begin
       sfp_real_reg  <= 0;
       sfp_imag_reg  <= 0;
-      output_real   <= 0;
-      output_imag   <= 0;
       for (i = 0; i < 8; i = i + 1) begin
         exp_offset_num_reg[i] <= {(2 * expWidth) {1'b0}};
         sig_off_reg[i]        <= {((sigWidth + 4 + low_expand) * 2) {1'b0}};
@@ -80,9 +78,25 @@ module HADAMARD #(
         adder_num_reg[i] <= adder_num[i];
       end
 
-      output_real <= {sfpout[3], sfpout[2], sfpout[1], sfpout[0]};
-      output_imag <= {sfpout[7], sfpout[6], sfpout[5], sfpout[4]};
 
+    end
+  end
+  assign  output_real = {sfpout[3], sfpout[2], sfpout[1], sfpout[0]};
+  assign  output_imag = {sfpout[7], sfpout[6], sfpout[5], sfpout[4]};
+
+  //ready signal 
+  reg [3:0] count_r;
+  always@(posedge clk or negedge rst) begin
+    if(~rst) begin
+      count_r <= 3'b111;
+    end else if (start) begin
+      count_r <= 0;
+    end else begin
+      hadamard_done <= 0;
+      if(count_r != 3'b111)
+        count_r <= count_r + 1;
+      if(count_r == 3'b10) 
+        hadamard_done <= 1;
     end
   end
 
