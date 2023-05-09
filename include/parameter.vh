@@ -1,6 +1,6 @@
 //define SFP format
-`define formatSFP 10
-`define exponent 5
+`define formatSFP 9
+`define exponent 4
 `define significand 4
 
 

@@ -1,9 +1,10 @@
 `include "parameter.vh"
-module FFT32(CLK,RST,START,DR,DI,OR,OI);
+module FFT32(CLK,RST,START,DR,DI,OR,OI,RDY);
 `FFTsfpw
     input CLK,RST,START;
     input [nb-1:0] DR,DI;
     output [nb-1:0] OR,OI;
+    output RDY;
 
     wire [nb-1:0] dr1,di1;
     wire rdy1;      //BUFRAM0 ready signal
@@ -130,6 +131,11 @@ module FFT32(CLK,RST,START,DR,DI,OR,OI);
     );
     wire [nb-1:0] dr14,di14;
     wire rdy12;
-    PA2SE U_PA2SE_2(.CLK(CLK) , .RST(RST) , .START(rdy11) , .DR(dr13) , .DI(di13), .OR(OR) , .OI(OI));
+    PA2SE U_PA2SE_2(.CLK(CLK) , .RST(RST) , .START(rdy11) , .DR(dr13) , .DI(di13), .OR(dr14) , .OI(di14) , .RDY(rdy12));
+
+
+    wire [nb-1:0] dr15 , di15;
+    wire rdy13;
+    BUFRAM32C1 #(.nb(nb)) U_BUF4(.CLK(CLK), .RST(RST), .ED(1'b1),	.START(rdy11), .DR(dr14), .DI(di14), .RDY(rdy13), .DOR(OR), .DOI(OI));
   
 endmodule

@@ -133,11 +133,11 @@ module WROM32(CLK,RST,START, STAGE ,OR,OI,RDY);
                     end
                     endcase
             1'b1:   case(count_o)
-                    3'd0,3'd2,3'd4,3'd6: begin
+                    3'd0,3'd1,3'd2,3'd3: begin
                         OR <= {wr3,wr2,wr1,wr0};
                         OI <= {wi3,wi2,wi1,wi0};
                     end
-                    3'd1,3'd3,3'd5,3'd7: begin
+                    3'd4,3'd5,3'd6,3'd7: begin
                         OR <= {wr19,wr18,wr17,wr16};
                         OI <= {wi19,wi18,wi17,wi16};
                     end

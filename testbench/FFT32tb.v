@@ -65,4 +65,14 @@ module FFT32tb;
     .OI(OI)
   );
 
+  R4MDC u_R4MDC(
+    .CLK(CLK),
+    .RST(RST),
+    .START(START),
+    .DR(DR),
+    .DI(DI),
+    .OR(OR),
+    .OI(OI)
+  );
+
 endmodule
