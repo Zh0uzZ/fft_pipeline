@@ -4,20 +4,31 @@
 module R4MDC(CLK,RST,START,DR,DI,OR,OI,RDY);
 `FFTsfpw
     input CLK,RST,START;
-    input [nb-1:0] DR,DI;
-    output [nb-1:0] OR,OI;
+    input  [nb*4-1:0] DR,DI;
+    output [nb*4-1:0] OR,OI;
     output RDY;
 
-    wire [nb-1:0] dr1,di1;
-    wire rdy1;      //BUFRAM0 ready signal
-    BUFRAM32C1 #(.nb(nb)) U_BUF0(.CLK(CLK), .RST(RST), .ED(1'b1), .START(START), .DR(DR), .DI(DI), .RDY(rdy1), .DOR(dr1), .DOI(di1));
+//every twiddle factor rom or delay commutator start signal generate
+    reg [5:0] count_start_reg;
+    wire [5:0] count_start;
+    wire rdy1 , rdy2 , rdy3 , rdy4 , rdy5;
+    always@(posedge CLK) begin
+        if(START)
+            count_start_reg <= 0;
+        else begin
+            count_start_reg <= count_start;
+        end
+    end
+    assign count_start = (count_start_reg != 6'b100111) ? count_start_reg + 1 : count_start_reg;
+    assign rdy1 = (count_start_reg == 3);
+    assign rdy2 = (count_start_reg == 7);
+    assign rdy3 = (count_start_reg == 17);
+    assign rdy4 = (count_start_reg == 21);
+    assign rdy5 = (count_start_reg == 26);
 
-    wire [nb*4-1:0] dr2,di2;
-    wire rdy2;
-    SE2PA U_SE2PA_0(.CLK(CLK), .RST(RST) , .START(rdy1) , .DR(dr1) , .DI(di1), .OR(dr2) , .OI(di2) , .RDY(rdy2));
-    
-    wire [nb*4-1:0] dr3,di3,dr4,di4;
-    wire rdy3;
+
+    //STAGE 1
+    wire [nb*4-1:0] dr1,di1,dr2,di2,dr3,di3;
     GEMM #(
         .expWidth   (`EXPWIDTH),
         .sigWidth   (`SIGWIDTH),
@@ -26,17 +37,15 @@ module R4MDC(CLK,RST,START,DR,DI,OR,OI,RDY);
     ) U_GEMM0 (
         .clk        (CLK),
         .rst        (RST),
-        .start      (rdy2),
+        .start      (START),
         .control    (1'b1),
-        .input_real (dr2),
-        .input_imag (di2),
-        .output_real(dr3),
-        .output_imag(di3),
-        .ready      (rdy3)
+        .input_real (DR),
+        .input_imag (DI),
+        .output_real(dr1),
+        .output_imag(di1)
     );
     wire [nb*4-1:0] tr0,ti0;
-    wire rdy4;
-    WROM32 U_WROM0(.CLK(CLK) , .RST(RST) , .STAGE(1'b0) , .START(rdy2) , .OR(tr0) , .OI(ti0));
+    WROM32_MDC U_WROM0(.CLK(CLK) , .RST(RST) , .STAGE(1'b0) , .START(rdy1) , .OR(tr0) , .OI(ti0));
     HADAMARD #(
         .expWidth   (`EXPWIDTH),
         .sigWidth   (`SIGWIDTH),
@@ -45,107 +54,95 @@ module R4MDC(CLK,RST,START,DR,DI,OR,OI,RDY);
     ) U_HADAMARD0 (
         .clk          (CLK),
         .rst          (RST),
-        .start        (rdy3),
-        .input_real   (dr3),
-        .input_imag   (di3),
+        .input_real   (dr1),
+        .input_imag   (di1),
         .twiddle_real (tr0),
         .twiddle_imag (ti0),
-        .output_real  (dr4),
-        .output_imag  (di4),
-        .hadamard_done(rdy4)
+        .output_real  (dr2),
+        .output_imag  (di2)
     );
-    wire [nb*4-1:0] dr5,di5,dr6,di6;
-    wire rdy5;
-
     commutator4 #(.stage(2)) u0_commutator4_real(
-        .clk(CLK), .reset_n(RST), .start(rdy4), .input_data(dr4), .output_data(dr5), .done(rdy5)
+        .clk(CLK), .reset_n(RST), .start(rdy2), .input_data(dr2), .output_data(dr3), .done()
     );
     commutator4 #(.stage(2)) u0_commutator4_imag(
-        .clk(CLK), .reset_n(RST), .start(rdy4), .input_data(di4), .output_data(di5), .done()
+        .clk(CLK), .reset_n(RST), .start(rdy2), .input_data(di2), .output_data(di3), .done()
     );
 
-    // PA2SE U_PA2SE_0(.CLK(CLK) , .RST(RST) , .START(rdy4) , .DR(dr4) , .DI(di4), .OR(dr5) , .OI(di5));
-    // BUFRAM32C1 #(.nb(nb)) U_BUF2(.CLK(CLK), .RST(RST), .ED(1'b1),	.START(rdy4), .DR(dr5), .DI(di5), .RDY(rdy5), .DOR(dr6), .DOI(di6));
+    //STAGE2
 
+    wire [nb*4-1:0] dr4,di4,dr5,di5,dr6,di6;
+    GEMM #(
+        .expWidth   (`EXPWIDTH),
+        .sigWidth   (`SIGWIDTH),
+        .formatWidth(`SFPWIDTH),
+        .low_expand (`LOW_EXPAND)
+    ) U_GEMM1 (
+        .clk        (CLK),
+        .rst        (RST),
+        .control    (1'b1),
+        .input_real (dr3),
+        .input_imag (di3),
+        .output_real(dr4),
+        .output_imag(di4)
+    );
+    wire [nb*4-1:0] tr1,ti1;
+    WROM32_MDC U_WROM1(.CLK(CLK) , .RST(RST) , .STAGE(1'b1) , .START(rdy3) , .OR(tr1) , .OI(ti1));
+    HADAMARD #(
+        .expWidth   (`EXPWIDTH),
+        .sigWidth   (`SIGWIDTH),
+        .formatWidth(`SFPWIDTH),
+        .low_expand (`LOW_EXPAND)
+    ) U_HADAMARD1 (
+        .clk          (CLK),
+        .rst          (RST),
+        .input_real   (dr4),
+        .input_imag   (di4),
+        .twiddle_real (tr1),
+        .twiddle_imag (ti1),
+        .output_real  (dr5),
+        .output_imag  (di5)
+    );
 
-    // //STAGE2
-    // wire [nb*4-1:0] dr7,di7;
-    // wire rdy6;
-    // SE2PA U_SE2PA_1(.CLK(CLK) , .RST(RST) , .START(rdy5) , .DR(dr6) , .DI(di6) , .OR(dr7) , .OI(di7) , .RDY(rdy6));
+    commutator2 #(.stage(1)) u1_commutator2_real(
+        .clk(CLK), .reset_n(RST), .start(rdy4), .input_data(dr5), .output_data(dr6)
+    );
+    commutator2 #(.stage(1)) u1_commutator2_imag(
+        .clk(CLK), .reset_n(RST), .start(rdy4), .input_data(di5), .output_data(di6)
+    );
 
+    //STAGE 3
 
-    // wire [nb*4-1:0] dr8,di8,dr9,di9;
-    // wire rdy7;
-    // GEMM #(
-    //     .expWidth   (`EXPWIDTH),
-    //     .sigWidth   (`SIGWIDTH),
-    //     .formatWidth(`SFPWIDTH),
-    //     .low_expand (`LOW_EXPAND)
-    // ) U_GEMM1 (
-    //     .clk        (CLK),
-    //     .rst        (RST),
-    //     .start      (rdy6),
-    //     .control    (1'b1),
-    //     .input_real (dr7),
-    //     .input_imag (di7),
-    //     .output_real(dr8),
-    //     .output_imag(di8),
-    //     .ready      (rdy7)
-    // );
-    // wire [nb*4-1:0] tr1,ti1;
-    // wire rdy8;
-    // WROM32 U_WROM1(.CLK(CLK) , .RST(RST) , .STAGE(1'b1) , .START(rdy6) , .OR(tr1) , .OI(ti1));
-    // HADAMARD #(
-    //     .expWidth   (`EXPWIDTH),
-    //     .sigWidth   (`SIGWIDTH),
-    //     .formatWidth(`SFPWIDTH),
-    //     .low_expand (`LOW_EXPAND)
-    // ) U_HADAMARD1 (
-    //     .clk          (CLK),
-    //     .rst          (RST),
-    //     .start        (rdy7),
-    //     .input_real   (dr8),
-    //     .input_imag   (di8),
-    //     .twiddle_real (tr1),
-    //     .twiddle_imag (ti1),
-    //     .output_real  (dr9),
-    //     .output_imag  (di9),
-    //     .hadamard_done(rdy8)
-    // );
-    // wire [nb-1:0] dr10,di10,dr11,di11;
-    // wire rdy9;
-    // PA2SE U_PA2SE_1(.CLK(CLK) , .RST(RST) , .START(rdy8) , .DR(dr9) , .DI(di9), .OR(dr10) , .OI(di10));
-    // BUFRAM32C1 #(.nb(nb),.INV_ADDR(1)) U_BUF3(.CLK(CLK), .RST(RST), .ED(1'b1),	.START(rdy8), .DR(dr10), .DI(di10), .RDY(rdy9), .DOR(dr11), .DOI(di11));
+    wire [nb*4-1:0] dr7,di7,dr8,di8;
+    GEMM #(
+        .expWidth   (`EXPWIDTH),
+        .sigWidth   (`SIGWIDTH),
+        .formatWidth(`SFPWIDTH),
+        .low_expand (`LOW_EXPAND)
+    ) U_GEMM2 (
+        .clk        (CLK),
+        .rst        (RST),
+        .control    (1'b0),
+        .input_real (dr6),
+        .input_imag (di6),
+        .output_real(dr7),
+        .output_imag(di7)
+    );
 
-    // wire [nb*4-1:0] dr12,di12;
-    // wire rdy10;
-    // SE2PA U_SE2PA_2(.CLK(CLK), .RST(RST) , .START(rdy9) , .DR(dr11) , .DI(di11), .OR(dr12) , .OI(di12) , .RDY(rdy10));
+    out_commutator u_out_commutator_real(
+        .clk(CLK) , .reset_n(RST) , .start(rdy5) , .input_data(dr7) , .output_data(dr8)
+    );
+    out_commutator u_out_commutator_imag(
+        .clk(CLK) , .reset_n(RST) , .start(rdy5) , .input_data(di7) , .output_data(di8)
+    );
 
-    // wire [nb*4-1:0] dr13,di13;
-    // wire rdy11;
-    // GEMM #(
-    //     .expWidth   (`EXPWIDTH),
-    //     .sigWidth   (`SIGWIDTH),
-    //     .formatWidth(`SFPWIDTH),
-    //     .low_expand (`LOW_EXPAND)
-    // ) U_GEMM2 (
-    //     .clk        (CLK),
-    //     .rst        (RST),
-    //     .start      (rdy10),
-    //     .control    (1'b0),
-    //     .input_real (dr12),
-    //     .input_imag (di12),
-    //     .output_real(dr13),
-    //     .output_imag(di13),
-    //     .ready      (rdy11)
-    // );
-    // wire [nb-1:0] dr14,di14;
-    // wire rdy12;
-    // PA2SE U_PA2SE_2(.CLK(CLK) , .RST(RST) , .START(rdy11) , .DR(dr13) , .DI(di13), .OR(dr14) , .OI(di14) , .RDY(rdy12));
-
-
-    // wire [nb-1:0] dr15 , di15;
-    // wire rdy13;
-    // BUFRAM32C1 #(.nb(nb)) U_BUF4(.CLK(CLK), .RST(RST), .ED(1'b1),	.START(rdy11), .DR(dr14), .DI(di14), .RDY(rdy13), .DOR(OR), .DOI(OI));
+    wire [nb-1:0] output_real [3:0];
+    wire [nb-1:0] output_imag [3:0];
+    genvar i;
+    generate
+        for(i=0;i<4;i=i+1) begin : data_wire
+            assign output_real[i] = dr8[nb*(4-i)-1:nb*(3-i)];
+            assign output_imag[i] = di8[nb*(4-i)-1:nb*(3-i)];
+        end
+    endgenerate
   
 endmodule

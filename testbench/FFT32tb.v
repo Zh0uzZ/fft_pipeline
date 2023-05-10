@@ -55,6 +55,7 @@ module FFT32tb;
     end
   end
 
+
   FFT32 U_FFT(
     .CLK(CLK),
     .RST(RST),
@@ -65,14 +66,54 @@ module FFT32tb;
     .OI(OI)
   );
 
+  reg start_mdc;
+  always@(posedge CLK) begin
+    start_mdc <= START;
+  end
+  reg [nb*4-1:0] DR4,DI4;
+  wire [nb*4-1:0] OR4,OI4;
+  wire [8:0] count_mdc;
+  assign count_mdc = count%24;
+  always @(posedge CLK or negedge RST) begin
+      if (0<=count_mdc && count_mdc <8) begin
+          DR4 <= {input_data[count_mdc] , input_data[count_mdc+8],input_data[count_mdc+16],input_data[count_mdc+24]};
+          DI4 <= {input_data[count_mdc+32] , input_data[count_mdc+32+8] , input_data[count_mdc+32+16] , input_data[count_mdc+32+24]};
+      end else if (8<=count_mdc && count_mdc<16) begin
+          DR4 <= {input_data[count_mdc+56] , input_data[count_mdc+56+8],input_data[count_mdc+56+16],input_data[count_mdc+56+24]};
+          DI4 <= {input_data[count_mdc+56+32] , input_data[count_mdc+56+32+8] , input_data[count_mdc+56+32+16] , input_data[count_mdc+56+32+24]};
+      end else if (16<=count_mdc && count_mdc<24) begin
+          DR4 <= {input_data[count_mdc+112] , input_data[count_mdc+112+8],input_data[count_mdc+112+16],input_data[count_mdc+112+24]};
+          DI4 <= {input_data[count_mdc+112+32] , input_data[count_mdc+112+32+8] , input_data[count_mdc+112+32+16] , input_data[count_mdc+112+32+24]};
+      end
+  end
+
   R4MDC u_R4MDC(
     .CLK(CLK),
     .RST(RST),
     .START(START),
-    .DR(DR),
-    .DI(DI),
-    .OR(OR),
-    .OI(OI)
+    .DR(DR4),
+    .DI(DI4),
+    .OR(OR4),
+    .OI(OI4)
+  );
+
+
+  reg [2:0] remap_data;
+  wire [nb-1:0] remap_output;
+  reg remap_start;
+  initial begin
+    remap_data = 0;
+    remap_start = 0;
+    #100 remap_start = 1;
+    #10 remap_start = 0; remap_data = 0;
+  end
+  always@(posedge CLK) remap_data <= remap_data + 1;
+  serial_remap u_serial_remap(
+    .clk(CLK),
+    .reset_n(RST),
+    .start(remap_start),
+    .input_data({6'b000000 , remap_data}),
+    .output_data(remap_output)
   );
 
 endmodule

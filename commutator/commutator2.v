@@ -9,19 +9,19 @@ output [nb*4-1:0] output_data;
 `FFTsfpw
 parameter stage = 1;
 
-reg [3:0] count;
+reg [0:0] count;
 always@(posedge clk or negedge reset_n) begin
     if(~reset_n) begin
         count <= 0;
     end else if(start) begin
         count <= 0;
     end else begin
-        count <= count + 1;
+        count <= ~ count;
     end
 end
 
 wire [nb-1:0] buffer_data [3:0];
-wire [nb-1:0] switch_data [3:0];
+reg  [nb-1:0] switch_data [3:0];
 
 
 buffer #(.depth(stage)) u0_buffer(
@@ -40,7 +40,7 @@ assign buffer_data[3] = input_data[nb*4-1:nb*3];
 
 
 always@(*) begin
-    case(i)
+    case(count)
         0:begin
             switch_data[3] = buffer_data[3];
             switch_data[2] = buffer_data[2];
