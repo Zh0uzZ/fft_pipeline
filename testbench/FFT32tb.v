@@ -27,7 +27,7 @@ module FFT32tb;
     $fclose(hand_input);
     // $readmemh("out.txt" , input_data);
   end
-  
+
 
   reg [8:0] count;
   always @(posedge CLK or negedge RST) begin
@@ -78,42 +78,55 @@ module FFT32tb;
       if (0<=count_mdc && count_mdc <8) begin
           DR4 <= {input_data[count_mdc] , input_data[count_mdc+8],input_data[count_mdc+16],input_data[count_mdc+24]};
           DI4 <= {input_data[count_mdc+32] , input_data[count_mdc+32+8] , input_data[count_mdc+32+16] , input_data[count_mdc+32+24]};
+
+          dr_i <= {{input_data[count_mdc]}    , {input_data[count_mdc+8]   } , {input_data[count_mdc+16]   } , {input_data[count_mdc+24]   } };
+          di_i <= {{input_data[count_mdc+32]} , {input_data[count_mdc+32+8]} , {input_data[count_mdc+32+16]} , {input_data[count_mdc+32+24]} };
       end else if (8<=count_mdc && count_mdc<16) begin
-          DR4 <= {input_data[count_mdc+56] , input_data[count_mdc+56+8],input_data[count_mdc+56+16],input_data[count_mdc+56+24]};
-          DI4 <= {input_data[count_mdc+56+32] , input_data[count_mdc+56+32+8] , input_data[count_mdc+56+32+16] , input_data[count_mdc+56+32+24]};
+          DR4 <= {input_data[count_mdc+56]    , input_data[count_mdc+56+8]    , input_data[count_mdc+56+16]    , input_data[count_mdc+56+24]    };
+          DI4 <= {input_data[count_mdc+56+32] , input_data[count_mdc+56+32+8] , input_data[count_mdc+56+32+16] , input_data[count_mdc+56+32+24] };
+
+          dr_i <= {{input_data[count_mdc+56]   } , {input_data[count_mdc+56+8]   } , {input_data[count_mdc+56+16]   } , {input_data[count_mdc+56+24]    }};
+          di_i <= {{input_data[count_mdc+56+32]} , {input_data[count_mdc+56+32+8]} , {input_data[count_mdc+56+32+16]} , {input_data[count_mdc+56+32+24] }};
       end else if (16<=count_mdc && count_mdc<24) begin
-          DR4 <= {input_data[count_mdc+112] , input_data[count_mdc+112+8],input_data[count_mdc+112+16],input_data[count_mdc+112+24]};
-          DI4 <= {input_data[count_mdc+112+32] , input_data[count_mdc+112+32+8] , input_data[count_mdc+112+32+16] , input_data[count_mdc+112+32+24]};
+          DR4 <= {input_data[count_mdc+112]    , input_data[count_mdc+112+8]    , input_data[count_mdc+112+16]    , input_data[count_mdc+112+24]    };
+          DI4 <= {input_data[count_mdc+112+32] , input_data[count_mdc+112+32+8] , input_data[count_mdc+112+32+16] , input_data[count_mdc+112+32+24] };
+
+          dr_i <= {{input_data[count_mdc+112]   } , {input_data[count_mdc+112+8]   } , {input_data[count_mdc+112+16]   } , {input_data[count_mdc+112+24]   } };
+          di_i <= {{input_data[count_mdc+112+32]} , {input_data[count_mdc+112+32+8]} , {input_data[count_mdc+112+32+16]} , {input_data[count_mdc+112+32+24]} };
       end
   end
-
+parameter type sfp_t = logic [nb-1:0];
+sfp_t [3:0] dr_i ;
+sfp_t [3:0] di_i ;
+sfp_t [3:0] dr_o ;
+sfp_t [3:0] di_o ;
   R4MDC u_R4MDC(
-    .CLK(CLK),
-    .RST(RST),
-    .START(START),
-    .DR(DR4),
-    .DI(DI4),
-    .OR(OR4),
-    .OI(OI4)
+    .clk_i(CLK),
+    .rst_ni(RST),
+    .start_i(START),
+    .dr_i,
+    .di_i,
+    .dr_o,
+    .di_o
   );
 
 
-  reg [2:0] remap_data;
-  wire [nb-1:0] remap_output;
-  reg remap_start;
-  initial begin
-    remap_data = 0;
-    remap_start = 0;
-    #100 remap_start = 1;
-    #10 remap_start = 0; remap_data = 0;
-  end
-  always@(posedge CLK) remap_data <= remap_data + 1;
-  serial_remap u_serial_remap(
-    .clk(CLK),
-    .reset_n(RST),
-    .start(remap_start),
-    .input_data({6'b000000 , remap_data}),
-    .output_data(remap_output)
-  );
+//   reg [2:0] remap_data;
+//   wire [nb-1:0] remap_output;
+//   reg remap_start;
+//   initial begin
+//     remap_data = 0;
+//     remap_start = 0;
+//     #100 remap_start = 1;
+//     #10 remap_start = 0; remap_data = 0;
+//   end
+//   always@(posedge CLK) remap_data <= remap_data + 1;
+//   serial_remap u_serial_remap(
+//     .clk(CLK),
+//     .reset_n(RST),
+//     .start(remap_start),
+//     .input_data({6'b000000 , remap_data}),
+//     .output_data(remap_output)
+//   );
 
 endmodule

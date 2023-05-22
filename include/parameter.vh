@@ -11,6 +11,7 @@
 `define LOW_EXPAND 2
 `define FIXWIDTH 21
 
+`define SFP_WIDTH `formatSFP
 //define parameter
 `define FFTsfpw parameter nb=`formatSFP;
 
