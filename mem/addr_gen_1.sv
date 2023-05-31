@@ -5,80 +5,75 @@ module addr_gen_1 #(
 ) (
     input logic clk_i,
     input logic rst_ni,
-
 //stage 2
     input logic start_i,
 
-    output logic start_fft_o
-    output logic  [3:0] wen_o,
-    output logic  [1:0] cs_o,
-    output addr_t [3:0] addr_gen_o,
-    output logic stage2
+    output logic start_fft_o,
+    output logic stage2,
+
+    output logic  [4:0] wen_o,
+    output logic  [7:0] ren_o,
+    output addr_t addr_wr_o,
+    output addr_t addr_rd_o
 );
 
 parameter logic [2:0] index [8] = {3'b000 , 3'b100 , 3'b001 , 3'b101 , 3'b010 , 3'b110 , 3'b011 , 3'b111};
 
-addr_t [3:0] addr_gen_d;
-logic  [3:0] wen_d;
-logic  [AddrWidth-1:0] count , count_d;
 logic  start_fft_d;
+logic  stage2_d;
 
-logic [1:0] msbs , msbs_d;
 
-logic stage1 , stage1_d;
+logic  [4:0] wen_d;
+logic  [7:0] ren_d;
+
+logic  [AddrWidth:0] count , count_d;
+
+
 
 //stage 1 store all data in 4 sram
 always_comb begin
-    wen_d = (addr_gen_o[0]<={(AddrWidth){1'b1}}) ? 4'b0001 : 4'b0000;
-    start_fft_d = (addr_gen_o[0]!={AddrWidth{1'b1}}) ? 1'b1 : 1'b0;
-    stage1_d    = (addr_gen_o[0]<={(AddrWidth+1){1'b1}}) ? 1'b1 : 1'b0;
+    start_fft_d = (count[AddrWidth-2:0]!={(AddrWidth-1){1'b1}}) ? 1'b1 : 1'b0;
+    stage2_d    = (count<={(AddrWidth){1'b1}}) ? 1'b1 : 1'b0;
+
 
     //address
-    count_d <= (count != (AddrWidth{1'b1})) ? count + 1 : count;
-    for(int unsigned i = 0; i < 4; i++) begin
-        addr_gen_d[i] = {count[AddrWidth-1-:2] , index[count[2:0]]};
-    end
+    count_d = (count != {(AddrWidth+1){1'b1}}) ? count + 1 : count;
+    addr_wr_o = count[AddrWidth] ? {(AddrWidth-1){1'b0}} : {count[AddrWidth-1-:2] , index[count[2:0]]};
+    addr_rd_o = count[AddrWidth] ? count[AddrWidth-3:0] : {(AddrWidth-1){1'b0}} ;
 
     //wen && cs
-    unique case(count[AddrWidth-1-:2])
-        2'b00: wen_d = 4'b0001 ;
-        2'b01: wen_d = 4'b0010 ;
-        2'b10: wen_d = 4'b0100 ;
-        2'b11: wen_d = 4'b1000 ;
+    unique case(count[AddrWidth-:3])
+        3'b000: begin wen_d = 5'b00001; end
+        3'b001: begin wen_d = 5'b00010; end
+        3'b010: begin wen_d = 5'b00100; end
+        3'b011: begin wen_d = 5'b01000; end
+        default : wen_d = 5'b00000;
     endcase
-    cs_q = count[AddrWidth-1-:2];
+    ren_d = count[AddrWidth] ? {(AddrWidth-1){1'b0}} : {1'b1 , {AddrWidth/2{1'b0}}}<<count[AddrWidth-:3] ;
 
 end
 
-
-
-
 always_ff@(posedge clk_i or negedge rst_ni) begin
     if(!rst_ni) begin
-        wen_o <=4'b0000;
-        for(int unsigned i = 0; i < 4; i++) begin
-            addr_gen_o[i] <= {AddrWidth{1'b0}};
-        end
-        count <= {AddrWidth{1'b0}};
+        stage2 <= 1'b0;
+        start_fft_o <= 1'b0;
+
+        wen_o <= 5'b00000;
+        ren_o <= 0;
+        count <= {(AddrWidth+1){1'b1}};
     end else begin
         if(start_i) begin
-            stage1 <= 1'b1;
-            wen_o <= 4'h0;
-            for(int unsigned i = 0; i < 4; i++) begin
-                addr_gen_o[i] <= {AddrWidth{1'b0}};
-            end
+            wen_o <= 5'b00000;
+            ren_o <= 0;
+            stage2 <= 1'b1;
             count <= {{AddrWidth}{1'b0}};
         end else begin
             wen_o <= wen_d;
-            for(int unsigned i = 0; i < 4; i++) begin
-                addr_gen_o[i] <= addr_gen_d[i];
-            end
+            ren_o <= ren_d;
             start_fft_o <= start_fft_d;
-            stage1 <= stage1_d;
+            stage2 <= stage2_d;
             count <= count_d;
         end
     end
 end
-
-
 endmodule

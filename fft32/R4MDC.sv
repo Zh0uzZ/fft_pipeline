@@ -32,7 +32,7 @@ parameter nb = `SFP_WIDTH;
     assign rdy2 = (count_start_reg == 7);
     assign rdy3 = (count_start_reg == 17);
     assign rdy4 = (count_start_reg == 21);
-    assign rdy5 = (count_start_reg == 26);
+    assign rdy_mdc_o = (count_start_reg == 26);
 
 
     //STAGE 1

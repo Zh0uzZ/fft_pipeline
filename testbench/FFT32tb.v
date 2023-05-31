@@ -100,14 +100,16 @@ sfp_t [3:0] dr_i ;
 sfp_t [3:0] di_i ;
 sfp_t [3:0] dr_o ;
 sfp_t [3:0] di_o ;
+logic rdy_mdc_o;
   R4MDC u_R4MDC(
     .clk_i(CLK),
     .rst_ni(RST),
-    .start_i(START),
-    .dr_i,
-    .di_i,
-    .dr_o,
-    .di_o
+    .start_mdc_i(START),
+    .dr_mdc_i(dr_i),
+    .di_mdc_i(di_i),
+    .dr_mdc_o(dr_o),
+    .di_mdc_o(di_o),
+    .rdy_mdc_o
   );
 
 

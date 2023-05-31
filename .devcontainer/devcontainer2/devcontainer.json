@@ -1,0 +1,39 @@
+{
+    "name": "c4e-workspace-hank",
+    "image": "01xz/c4e:latest",
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "eirikpre.systemverilog",
+                "vscodevim.vim"
+            ],
+        }
+    },
+    "mounts": [
+        "source=/opt/cadence,target=/opt/cadence,type=bind,consistency=cached",
+        "source=/opt/mentor,target=/opt/mentor,type=bind,consistency=cached",
+        "source=/opt/synopsys,target=/opt/synopsys,type=bind,consistency=cached",
+        "source=/opt/xilinx,target=/opt/xilinx,type=bind,consistency=cached",
+        "source=/mnt/storage/pdks,target=/opt/pdks,type=bind,consistency=cached",
+        "source=/home/hank/workspace/asic/ic_design,target=/workspaces/c4e-workspace/project,type=bind,consistency=cached"
+    ],
+    "runArgs": [
+        "-h",
+        "c4e",
+        "--name",
+        "c4e-hank",
+        "--rm",
+        "-v",
+        "/etc/timezone:/etc/timezone:ro",
+        "-v",
+        "/etc/localtime:/etc/localtime:ro",
+        "-e",
+        "SSH_CLIENT=${localEnv:SSH_CLIENT}",
+        "-e",
+        "SNPSLMD_LICENSE_FILE=27000@172.101.1.2"
+    ],
+    "remoteUser": "vscode",
+    "postStartCommand": "ip -4 link show dev eth0 | grep link | awk '{print $2}' | xargs python /opt/mentor/license/mgclicgen.py",
+    "postCreateCommand": "echo \"source ${containerWorkspaceFolder}/.devcontainer/devcontainer2/settings.sh\" >> /home/vscode/.bashrc"
+}
