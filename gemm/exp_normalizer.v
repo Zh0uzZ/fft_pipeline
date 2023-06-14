@@ -1,4 +1,4 @@
-module exp_normalizer #(
+module exp_normalizer #( //36LUT
   parameter expWidth = 4
 ) (
   input  [(expWidth*4-1):0] input_exp,

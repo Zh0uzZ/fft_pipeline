@@ -7,6 +7,7 @@ module addr_gen_1 #(
     input logic rst_ni,
 //stage 2
     input logic start_i,
+    input logic stage1,
 
     output logic start_fft_o,
     output logic stage2,
@@ -26,30 +27,31 @@ logic  stage2_d;
 logic  [4:0] wen_d;
 logic  [7:0] ren_d;
 
-logic  [AddrWidth:0] count , count_d;
+logic  [AddrWidth+1:0] count_q , count_d;
 
 
 
 //stage 1 store all data in 4 sram
 always_comb begin
-    start_fft_d = (count[AddrWidth-2:0]!={(AddrWidth-1){1'b1}}) ? 1'b1 : 1'b0;
-    stage2_d    = (count<={(AddrWidth){1'b1}}) ? 1'b1 : 1'b0;
-
+    start_fft_d = ((count_q[AddrWidth-1:0]=={(AddrWidth){1'b1}})&stage2) ? 1'b1 : 1'b0;
+    stage2_d    = (count_q<={(AddrWidth+1){1'b1}}) ? 1'b1 : 1'b0;
 
     //address
-    count_d = (count != {(AddrWidth+1){1'b1}}) ? count + 1 : count;
-    addr_wr_o = count[AddrWidth] ? {(AddrWidth-1){1'b0}} : {count[AddrWidth-1-:2] , index[count[2:0]]};
-    addr_rd_o = count[AddrWidth] ? count[AddrWidth-3:0] : {(AddrWidth-1){1'b0}} ;
+    count_d = (count_q != {(AddrWidth+2){1'b1}}) ? count_q + 1 : count_q;
+    addr_wr_o = count_q[AddrWidth] ? {(AddrWidth-1){1'b0}} : { 2'b00 , count_q[3+:(AddrWidth-5)] , index[count_q[2:0]]};
+    addr_rd_o = count_q[AddrWidth] ? {2'b00 , count_q[AddrWidth-3:0]} : {(AddrWidth-1){1'b0}} ;
 
     //wen && cs
-    unique case(count[AddrWidth-:3])
+    unique case(count_q[AddrWidth-:3])
         3'b000: begin wen_d = 5'b00001; end
         3'b001: begin wen_d = 5'b00010; end
         3'b010: begin wen_d = 5'b00100; end
         3'b011: begin wen_d = 5'b01000; end
         default : wen_d = 5'b00000;
     endcase
-    ren_d = count[AddrWidth] ? {(AddrWidth-1){1'b0}} : {1'b1 , {AddrWidth/2{1'b0}}}<<count[AddrWidth-:3] ;
+    ren_d = count_q[AddrWidth] ? (8'h10 << count_q[AddrWidth-1-:2]) : 8'h00 ;
+
+    wen_o = wen_d;
 
 end
 
@@ -58,21 +60,18 @@ always_ff@(posedge clk_i or negedge rst_ni) begin
         stage2 <= 1'b0;
         start_fft_o <= 1'b0;
 
-        wen_o <= 5'b00000;
         ren_o <= 0;
-        count <= {(AddrWidth+1){1'b1}};
+        count_q <= {(AddrWidth+2){1'b1}};
     end else begin
-        if(start_i) begin
-            wen_o <= 5'b00000;
+        if(start_i && stage1) begin
             ren_o <= 0;
             stage2 <= 1'b1;
-            count <= {{AddrWidth}{1'b0}};
+            count_q <= {(AddrWidth+2){1'b0}};
         end else begin
-            wen_o <= wen_d;
             ren_o <= ren_d;
             start_fft_o <= start_fft_d;
             stage2 <= stage2_d;
-            count <= count_d;
+            count_q <= count_d;
         end
     end
 end

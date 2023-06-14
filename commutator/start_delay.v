@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module start_delay(clk,reset_n,start,input_real,input_imag,output_real,output_imag);
 `FFTsfpw
 

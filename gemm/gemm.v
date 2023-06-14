@@ -1,8 +1,8 @@
 // control[1:0] , control[1] = 1 : size4  0:size2
-// control[0],only GEMM 
+// control[0],only GEMM
 
-`include "parameter.vh"
-module GEMM #(
+`include "../include/parameter.vh"
+module GEMM #( // 951 LUT
     parameter expWidth    = `EXPWIDTH,
     parameter sigWidth    = `SIGWIDTH,
     parameter formatWidth = `SFPWIDTH,
@@ -16,28 +16,28 @@ module GEMM #(
     input      [(formatWidth*4-1) : 0] input_imag,
     output reg [(formatWidth*4-1) : 0] output_real,
     output reg [(formatWidth*4-1) : 0] output_imag,
-    output reg                         ready
+    output                             ready
 );
 
 localparam SIGNED_WIDTH = sigWidth+4+low_expand;
 genvar j;
-  // //debug signals 
-  // wire [formatWidth-1:0] wire_input_real     [3:0];
-  // wire [formatWidth-1:0] wire_input_imag     [3:0];
-  // wire [formatWidth-1:0] wire_output_real    [3:0];
-  // wire [formatWidth-1:0] wire_output_imag    [3:0];
-  // wire [formatWidth-1:0] wire_twiddle_real   [3:0];
-  // wire [formatWidth-1:0] wire_twiddle_imag   [3:0];
-  // generate
-  //   for (j = 0; j < 4; j = j + 1) begin
-  //     assign wire_input_real[j]  = input_real[formatWidth*(j+1)-1:formatWidth*j];
-  //     assign wire_input_imag[j]  = input_imag[formatWidth*(j+1)-1:formatWidth*j];
-  //     assign wire_output_real[j] = output_real[formatWidth*(j+1)-1:formatWidth*j];
-  //     assign wire_output_imag[j] = output_imag[formatWidth*(j+1)-1:formatWidth*j];
-  //     // assign wire_twiddle_real[j] = twiddle_real[formatWidth*(j+1)-1:formatWidth*j];
-  //     // assign wire_twiddle_imag[j] = twiddle_imag[formatWidth*(j+1)-1:formatWidth*j];
-  //   end
-  // endgenerate
+  //debug signals
+  wire [formatWidth-1:0] wire_input_real     [3:0];
+  wire [formatWidth-1:0] wire_input_imag     [3:0];
+  wire [formatWidth-1:0] wire_output_real    [3:0];
+  wire [formatWidth-1:0] wire_output_imag    [3:0];
+  wire [formatWidth-1:0] wire_twiddle_real   [3:0];
+  wire [formatWidth-1:0] wire_twiddle_imag   [3:0];
+  generate
+    for (j = 0; j < 4; j = j + 1) begin
+      assign wire_input_real[j]  = input_real[formatWidth*(j+1)-1:formatWidth*j];
+      assign wire_input_imag[j]  = input_imag[formatWidth*(j+1)-1:formatWidth*j];
+      assign wire_output_real[j] = output_real[formatWidth*(j+1)-1:formatWidth*j];
+      assign wire_output_imag[j] = output_imag[formatWidth*(j+1)-1:formatWidth*j];
+      // assign wire_twiddle_real[j] = twiddle_real[formatWidth*(j+1)-1:formatWidth*j];
+      // assign wire_twiddle_imag[j] = twiddle_imag[formatWidth*(j+1)-1:formatWidth*j];
+    end
+  endgenerate
 
 
 
@@ -96,20 +96,18 @@ genvar j;
   end
 
   //GEMM ready signal
-  reg [2:0] count_r;
+  reg [1:0] count_r;
   always @(posedge clk or negedge rst) begin
     if(~rst)
-      count_r <= 3'b111;
-    else if (start) 
-      count_r <= 3'b0;
+      count_r <= 2'b11;
+    else if (start)
+      count_r <= 2'b0;
     else begin
-      ready <= 0;
-      if(count_r!=3'b111)
+      if(count_r!=2'b11)
         count_r <= count_r + 1;
-      if(count_r == 3'b010)
-        ready <= 1;
     end
   end
+  assign ready = (count_r == 2);
 
 
   //1CYCLE
@@ -169,7 +167,7 @@ genvar j;
     };
   exp_normalizer #(
       .expWidth(expWidth)
-  ) u2_exp_normalizer (  //imag[3:0] or imag[3:2] 
+  ) u2_exp_normalizer (  //imag[3:0] or imag[3:2]
       .input_exp     (exp_normalizer_input[2]),
       .max_exp       (max_exp[2]),
       .exp_offset_num(exp_offset_num[2])
@@ -201,8 +199,8 @@ genvar j;
 
 
   wire [3:0] complement_sign     [7:0];
-  assign complement_sign[0] = control ? 4'b0000 : 4'b0000;
-  assign complement_sign[1] = control ? 4'b0101 : 4'b0000;
+  assign complement_sign[0] = control ? 4'b0000 : 4'b0000; //1
+  assign complement_sign[1] = control ? 4'b0101 : 4'b0000; //2
   assign complement_sign[2] = control ? 4'b0101 : 4'b0100;
   assign complement_sign[3] = control ? 4'b0110 : 4'b0100;
   assign complement_sign[4] = control ? 4'b0000 : 4'b0000;
@@ -254,8 +252,8 @@ genvar j;
       .sign            (sig_shifter_sign[0]),
       .complement_sign1(complement_sign[0]),
       .complement_sign2(complement_sign[2]),
-      .adder_num1      (adder_num[0]),
-      .adder_num2      (adder_num[2])
+      .adder_num1      (adder_num[0]), // 1
+      .adder_num2      (adder_num[2])  //3
   );
 
 

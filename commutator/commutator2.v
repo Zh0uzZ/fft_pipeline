@@ -1,24 +1,31 @@
 
-`include "parameter.vh"
-module commutator2(clk,reset_n,start,input_data,output_data);
+`include "../include/parameter.vh"
+module commutator2(clk,reset_n,start,input_data,output_data,done);
 
 input clk , reset_n , start;
 input  [nb*4-1:0] input_data;
 output [nb*4-1:0] output_data;
+output            done;
 
 `FFTsfpw
 parameter stage = 1;
 
 reg [0:0] count;
+reg [1:0] count_r;
 always@(posedge clk or negedge reset_n) begin
     if(~reset_n) begin
         count <= 0;
+        count_r <= 2'b11;
     end else if(start) begin
         count <= 0;
+        count_r <= 0;
     end else begin
         count <= ~ count;
+        if(count_r!=2'b11)
+            count_r <= count_r + 1;
     end
 end
+assign done = (count_r == 2);
 
 wire [nb-1:0] buffer_data [3:0];
 reg  [nb-1:0] switch_data [3:0];

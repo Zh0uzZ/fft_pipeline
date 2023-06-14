@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module FFT32(CLK,RST,START,DR,DI,OR,OI,RDY);
 `FFTsfpw
     input CLK,RST,START;
@@ -13,7 +13,7 @@ module FFT32(CLK,RST,START,DR,DI,OR,OI,RDY);
     wire [nb*4-1:0] dr2,di2;
     wire rdy2;
     SE2PA U_SE2PA_0(.CLK(CLK), .RST(RST) , .START(rdy1) , .DR(dr1) , .DI(di1), .OR(dr2) , .OI(di2) , .RDY(rdy2));
-    
+
     wire [nb*4-1:0] dr3,di3,dr4,di4;
     wire rdy3;
     GEMM #(
@@ -137,5 +137,5 @@ module FFT32(CLK,RST,START,DR,DI,OR,OI,RDY);
     wire [nb-1:0] dr15 , di15;
     wire rdy13;
     BUFRAM32C1 #(.nb(nb)) U_BUF4(.CLK(CLK), .RST(RST), .ED(1'b1),	.START(rdy11), .DR(dr14), .DI(di14), .RDY(rdy13), .DOR(OR), .DOI(OI));
-  
+
 endmodule

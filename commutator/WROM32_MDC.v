@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module WROM32_MDC(CLK,RST,START, STAGE ,OR,OI);
     `FFTsfpw
     input CLK,RST,START,STAGE;

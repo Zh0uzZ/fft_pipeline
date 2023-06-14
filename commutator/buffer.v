@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module buffer(clk,data,data_out);
 `FFTsfpw
 parameter depth = 3;

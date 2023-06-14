@@ -1,8 +1,8 @@
-`include "parameter.vh"
-module fft_2d #(
+`include "../include/parameter.vh"
+module fft_2d #(  //
     parameter type sfp_t = logic [`SFP_WIDTH-1:0],
-    parameter AddrLWidth = 7,
-    parameter AddrSWidth = 5,
+    parameter AddrLWidth = 8,
+    parameter AddrSWidth = AddrLWidth-2,
     parameter type addr_t_long = logic [AddrLWidth-1:0],
     parameter type addr_t_short = logic [AddrSWidth-1:0]
 ) (
@@ -14,7 +14,9 @@ module fft_2d #(
 
     output sfp_t [3:0] dr_o,
     output sfp_t [3:0] di_o,
-    output logic rdy_o
+    output logic rdy_o,
+    output sfp_t [3:0] dr_mdc_o,
+    output sfp_t [3:0] di_mdc_o
 );
 
 logic stage1 , stage2 , stage3 , start_fft_1 , start_fft_2 , start_mdc_i;
@@ -26,18 +28,18 @@ sfp_t [3:0] dr_sram_i , di_sram_i;
 sfp_t [3:0] dr_sram_o , di_sram_o;
 
 sfp_t [3:0] dr_mdc_i , di_mdc_i;
-sfp_t [3:0] dr_mdc_o , di_mdc_o;
+// sfp_t [3:0] dr_mdc_o , di_mdc_o;
 
 addr_t_long [3:0] addr_wr_i , addr_rd_i;
 addr_t_long addr_wr_1 , addr_rd_1;
 addr_t_long addr_wr_2 , addr_rd_2;
 
 addr_gen_0 #(
-    .AddrWidth(7)
+    .AddrWidth(AddrLWidth)
 ) u_address_gen0(
     .clk_i,
     .rst_ni,
-    .start_i,
+    .start_i(start_i || (rdy_mdc_o&&~stage3)),
 
     .start_fft_o(start_fft_1),
     .stage1,
@@ -52,11 +54,12 @@ addr_gen_0 #(
 );
 
 addr_gen_1 #(
-    .AddrWidth(7)
+    .AddrWidth(AddrLWidth)
 ) u_address_gen1(
     .clk_i,
     .rst_ni,
-    .start_i(rdy_mdc_o),
+    .start_i(rdy_mdc_o&&(~stage2)),
+    .stage1,
 
     .start_fft_o(start_fft_2),
     .stage2,
@@ -94,7 +97,10 @@ always_comb begin
 
         wen_i = wen_2;
         ren_i = ren_1;
-        addr_wr_i  = addr_wr_2;
+        addr_wr_i[3]  = wen_2[3]?addr_wr_2:0;
+        addr_wr_i[2]  = wen_2[2]?addr_wr_2:0;
+        addr_wr_i[1]  = wen_2[1]?addr_wr_2:0;
+        addr_wr_i[0]  = wen_2[0]?addr_wr_2:0;
         addr_rd_i  = addr_rd_1;
 
         start_mdc_i = start_fft_2;
@@ -109,7 +115,10 @@ always_comb begin
 
         wen_i = wen_2;
         ren_i = ren_2;
-        addr_wr_i  = {4{addr_wr_2}};
+        addr_wr_i[3]  = wen_2[3]?addr_wr_2:0;
+        addr_wr_i[2]  = wen_2[2]?addr_wr_2:0;
+        addr_wr_i[1]  = wen_2[1]?addr_wr_2:0;
+        addr_wr_i[0]  = wen_2[0]?addr_wr_2:0;
         addr_rd_i  = {4{addr_rd_2}};
 
         start_mdc_i = start_fft_2;
@@ -171,8 +180,8 @@ end
 
 
 sram_system #(
-    .AddrLWidth(7),
-    .AddrSWidth(5)
+    .AddrLWidth(AddrLWidth),
+    .AddrSWidth(AddrSWidth)
 ) u_sram_system(
     .clk_i,
     .wen_i,

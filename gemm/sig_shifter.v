@@ -1,5 +1,5 @@
-`define SIGNED_WIDTH (sigWidth+4+low_expand) 
-module SIG_SHIFTER #(
+`define SIGNED_WIDTH (sigWidth+4+low_expand)
+module SIG_SHIFTER #( //100LUT
   parameter expWidth   = 4,
   parameter sigWidth   = 4,
   parameter low_expand = 2
@@ -18,7 +18,7 @@ module SIG_SHIFTER #(
   genvar i;
   generate
     for (i = 0; i < 4; i = i + 1) begin : ushifter0
-      assign sig_off[i] = 
+      assign sig_off[i] =
       {3'b001 , significand[sigWidth*i+:sigWidth] , {low_expand{1'b0}}} >> exp_offset_num[expWidth*i+:expWidth];
     end
   endgenerate
@@ -26,12 +26,12 @@ module SIG_SHIFTER #(
   wire [3:0] zero;
   wire [7:0] complement_sign;
   wire [`SIGNED_WIDTH*8-1:0] complement_num_buf;
-  generate 
+  generate
     for(i = 0;i < 4;i = i + 1) begin
       assign zero[i] = (sig_off[i] == {`SIGNED_WIDTH{1'b0}});
   end
   endgenerate
-  
+
   assign complement_sign[0] = sign[0] ^ complement_sign1[0]; //number1
   assign complement_sign[1] = sign[1] ^ complement_sign1[1];
   assign complement_sign[2] = sign[2] ^ complement_sign1[2];
@@ -61,7 +61,7 @@ module SIG_SHIFTER #(
   assign complement_num_buf[`SIGNED_WIDTH*7-1] = complement_sign[6];
   assign complement_num_buf[`SIGNED_WIDTH*8-1] = complement_sign[7];
 
-  generate 
+  generate
     for(i = 0;i < 4;i = i + 1) begin
       assign adder_num1[`SIGNED_WIDTH*(i+1)-1 : `SIGNED_WIDTH*i] = zero[i] ? {`SIGNED_WIDTH{1'b0}} : complement_num_buf[`SIGNED_WIDTH*(i+1)-1 : `SIGNED_WIDTH*i    ];
       assign adder_num2[`SIGNED_WIDTH*(i+1)-1 : `SIGNED_WIDTH*i] = zero[i] ? {`SIGNED_WIDTH{1'b0}} : complement_num_buf[`SIGNED_WIDTH*(i+5)-1 : `SIGNED_WIDTH*(i+4)];

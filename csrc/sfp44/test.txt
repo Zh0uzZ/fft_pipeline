@@ -1,0 +1,2 @@
+1  0
+max_reciprocal 112

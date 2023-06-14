@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module SE2PA(CLK,RST,START,DR,DI,OR,OI,RDY);
 `FFTsfpw
 

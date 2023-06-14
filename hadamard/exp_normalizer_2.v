@@ -1,4 +1,4 @@
-module exp_normalizer_2 #(
+module exp_normalizer_2 #(  //8LUT
   parameter expWidth = 3
 ) (
   input  [(expWidth*2-1):0] input_exp,

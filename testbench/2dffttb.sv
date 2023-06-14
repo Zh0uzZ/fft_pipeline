@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module fft2d_tb;
 
 `FFTsfpw
@@ -10,7 +10,7 @@ parameter type sfp_t = logic [nb-1:0];
   integer file;
 
   initial begin
-    $readmemh("/home/hank/workspace/kcf/sfp_fft/sfp44_rtl/sfp44/rtl.txt" , data);
+    $readmemh("/home/hank/workspace/repos/fft32/fft_pipeline/result.txt" , data);
     file = $fopen("/home/hank/workspace/repos/fft32/fft_pipeline/work/result.txt","w");
     for(int i = 0; i < 32; i++) begin
         for(int j = 0; j < 32; j++) begin

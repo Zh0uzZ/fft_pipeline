@@ -1,6 +1,6 @@
 //32位SFP FFT
 // 23/4/2
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module vector_control (
     input clk,
     input rst,
@@ -31,7 +31,7 @@ module vector_control (
   wire [`SFPWIDTH*4-1:0] vector_output_real     [ 23:0];
   wire [`SFPWIDTH*4-1:0] vector_output_imag     [ 23:0];
 
-  //debug signals 
+  //debug signals
   wire [  `SFPWIDTH-1:0] wire_input_real        [ 3:0];
   wire [  `SFPWIDTH-1:0] wire_input_imag        [ 3:0];
   wire [  `SFPWIDTH-1:0] wire_output_real       [31:0];
@@ -82,7 +82,7 @@ wire [`EXPWIDTH-1:0] input_imag_exp [0:31];
 wire [`SIGWIDTH:0]   input_real_sig [0:31];
 wire [`SIGWIDTH:0]   input_imag_sig [0:31];
 
-generate 
+generate
   for(k=0;k<32;k=k+1) begin
     assign input_real_exp[k] = input_real[`SFPWIDTH*(k+1)-2:`SFPWIDTH*k+`SIGWIDTH];
     assign input_imag_exp[k] = input_imag[`SFPWIDTH*(k+1)-2:`SFPWIDTH*k+`SIGWIDTH];
@@ -108,13 +108,13 @@ find_max_exp u_find_max_exp(
 //2CYCLE 取最大指数的倒数
 reg [`EXPWIDTH-1:0] max_exp_ff [0:27];
 always@(posedge clk or negedge rst) begin
-  if(~rst) begin 
+  if(~rst) begin
     for (i=0; i<20;i=i+1)
-      max_exp_ff[i] <= 4'b0; 
+      max_exp_ff[i] <= 4'b0;
   end else begin
     max_exp_ff[0] <= max_exp;
     for (i=1; i<28;i=i+1)
-      max_exp_ff[i] <= max_exp_ff[i-1]; 
+      max_exp_ff[i] <= max_exp_ff[i-1];
   end
 end
 
@@ -126,7 +126,7 @@ wire [`EXPWIDTH-1:0] input_exp [0:63];
 //
 //  输入的SFP，exponent延迟了1个CLK，significant 延迟了2个CLK
 always@(posedge clk or negedge rst) begin
-  if(~rst) begin 
+  if(~rst) begin
     for (i=0; i<32;i=i+1) begin
       input_exp_ff0[i]    <= 4'b0;
       input_exp_ff0[i+32] <= 4'b0;
@@ -170,8 +170,8 @@ exponent_reciprocal u_exp_reciprocal(
     input_exp[15],input_exp[14],input_exp[13],input_exp[12],input_exp[11],input_exp[10],input_exp[9],input_exp[8],
     input_exp[7],input_exp[6],input_exp[5],input_exp[4],input_exp[3],input_exp[2],input_exp[1],input_exp[0]
   })
-);  
-  
+);
+
 
   wire [`SFPWIDTH-1:0] input_real_label [0:31];
   wire [`SFPWIDTH-1:0] input_imag_label [0:31];
@@ -595,11 +595,11 @@ exponent_resize u_exp_resize(
     imag_exponent_resize_output[15],imag_exponent_resize_output[14],imag_exponent_resize_output[13],imag_exponent_resize_output[12],imag_exponent_resize_output[11],imag_exponent_resize_output[10],imag_exponent_resize_output[9] ,imag_exponent_resize_output[8],
     imag_exponent_resize_output[7] ,imag_exponent_resize_output[6] ,imag_exponent_resize_output[5] ,imag_exponent_resize_output[4] ,imag_exponent_resize_output[3] ,imag_exponent_resize_output[2] ,imag_exponent_resize_output[1] ,imag_exponent_resize_output[0]
   })
-);  
+);
 //28CYCLY 输出最终结果 output_real , ouput_imag为寄存器类型数据
 
 always@(posedge clk or negedge rst) begin
-  if(~rst) begin 
+  if(~rst) begin
     for (i=0; i<32;i=i+1) begin
       output_real_sig_ff[i]<={(`EXPWIDTH){1'b0}};
       output_imag_sig_ff[i]<={(`EXPWIDTH){1'b0}};

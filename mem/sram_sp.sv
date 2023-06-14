@@ -20,7 +20,8 @@ module sram_sp #(
 localparam int unsigned NumWords = (1<<AddrWidth)-1;
 
 //memory array
-(*ram_style = "block"*)logic [DataWidth-1:0] sram_array [NumWords:0];
+// (*ram_style = "block"*)logic [DataWidth-1:0] sram_array [NumWords:0];
+logic [DataWidth-1:0] sram_array [NumWords:0];
 
 //initial sram value
 `ifdef Simulation

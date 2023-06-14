@@ -1,4 +1,4 @@
-module sfpmulti #(
+module sfpmulti #( //33 LUT
   parameter expWidth    = 4,
   parameter sigWidth    = 4,
   parameter formatWidth = 9
@@ -15,8 +15,8 @@ module sfpmulti #(
 
 
   assign out_multi = {1'b1, a[sigWidth-1:0]} * {1'b1, b[sigWidth-1:0]};
-  assign mantissa[sigWidth-1:0] = (expExpand>8) ? (out_multi[2*sigWidth+1] ? 
-                            (out_multi[sigWidth*2:sigWidth+1]) : 
+  assign mantissa[sigWidth-1:0] = (expExpand>8) ? (out_multi[2*sigWidth+1] ?
+                            (out_multi[sigWidth*2:sigWidth+1]) :
                             ((out_multi[sigWidth*2-1:sigWidth])))
                             :{(sigWidth){1'b0}};
   assign expExpand = a[formatWidth-2:sigWidth] + b[formatWidth-2:sigWidth] + out_multi[2*(sigWidth+1)-1];

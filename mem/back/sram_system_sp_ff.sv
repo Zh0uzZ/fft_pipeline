@@ -1,4 +1,5 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
+`include "../include/sram_pkg.sv"
 module sram_system_sp_ff #(
     parameter AddrLWidth = 7,
     parameter AddrSWidth = 5

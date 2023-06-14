@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module serial_remap (clk,reset_n,start,input_data,output_data);
 `FFTsfpw
 
@@ -58,5 +58,5 @@ always@(*) begin
     end
     endcase
 end
-    
+
 endmodule

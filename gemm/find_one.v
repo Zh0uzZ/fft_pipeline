@@ -4,7 +4,7 @@ module find_one #(
   parameter low_expand = 2
 ) (
   input  [(sigWidth+2+low_expand):0] input_num,
-  output [                      3:0] pos
+  output [                      3:0] pos /*verilator split_var*/
 );
   wire [7:0] data_1;
   wire [3:0] data_2;

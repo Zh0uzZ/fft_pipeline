@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module FFT32tb;
   `FFTsfpw
   reg CLK,RST,START;

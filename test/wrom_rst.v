@@ -1,5 +1,5 @@
 
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module wrom_rst(CLK,RST,START,OR,OI);
     `FFTsfpw
     input CLK,RST,START;

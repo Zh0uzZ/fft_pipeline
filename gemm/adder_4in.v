@@ -1,4 +1,4 @@
-module adder_4in #(
+module adder_4in #( //26LUT
     parameter sigWidth   = 4,
     parameter low_expand = 2
 ) (

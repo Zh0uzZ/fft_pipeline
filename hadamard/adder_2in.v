@@ -1,6 +1,6 @@
 //求补码并且求出两个数的和    4LUT,7ns
 `define SIGNED_WIDTH (sigWidth+4+low_expand)
-module adder_2in #(
+module adder_2in #(  //10LUT
     parameter sigWidth   = 4,
     parameter low_expand = 2
 ) (

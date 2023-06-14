@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module commutator4(clk,reset_n,start,input_data,output_data,done);
 
 input clk , reset_n , start;
@@ -13,7 +13,7 @@ reg [2:0] count , count_r;
 always@(posedge clk or negedge reset_n) begin
     if(~reset_n) begin
         count <= 0;
-        count_r <= 0;
+        count_r <= 3'b111;
     end else if(start) begin
         count <= 0;
         count_r <= 0;
@@ -23,7 +23,7 @@ always@(posedge clk or negedge reset_n) begin
             count_r <= count_r + 1;
     end
 end
-assign done = (count_r==5) ? 1: 0;
+assign done = (count_r==6) ? 1: 0;
 
 wire [nb-1:0] buffer_data [3:0];
 reg  [nb-1:0] switch [3:0];

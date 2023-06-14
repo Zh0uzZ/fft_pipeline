@@ -1,5 +1,5 @@
 //相加之后定点数的补码转为sfp
-module fix2sfp #(
+module fix2sfp #( //34LUT
     parameter expWidth    = 4,
     parameter sigWidth    = 4,
     parameter formatWidth = 9,
@@ -14,7 +14,7 @@ module fix2sfp #(
   wire [                    3:0] pos;
   wire [sigWidth+2+low_expand:0] expand_significand;
   reg  [           sigWidth-1:0] significand_reg;
-  reg  [           expWidth-1:0] expOffset_reg;
+  reg  [             expWidth:0] expOffset_reg;
   wire [             expWidth:0] expand_exp;
 
   assign zero = (fixin[sigWidth+2+low_expand:0] == 0);
@@ -156,7 +156,7 @@ module fix2sfp #(
       end
       4'd0: begin
         significand_reg  = {4'b0};
-        expOffset_reg = -4 - low_expand;
+        expOffset_reg = - max_exp;
       end
       default: begin
         significand_reg  = 0;

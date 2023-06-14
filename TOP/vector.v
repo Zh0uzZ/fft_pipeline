@@ -1,6 +1,6 @@
 // FFT 向量大小为4时，vector_size4
 //
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module vector_size4 (
     input                          clk,
     input                          rst,
@@ -28,7 +28,7 @@ module vector_size4 (
 
 
 
-  //debug signals 
+  //debug signals
   wire [formatWidth-1:0] wire_input_real   [3:0];
   wire [formatWidth-1:0] wire_input_imag   [3:0];
   wire [formatWidth-1:0] wire_output_real_1[3:0];

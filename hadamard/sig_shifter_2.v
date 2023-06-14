@@ -1,6 +1,6 @@
 `define SIGNED_WIDTH (sigWidth+4+low_expand)
 //计算移位加补码
-module sig_shifter_2 #(
+module sig_shifter_2 #(  //36LUT
   parameter expWidth   = 4,
   parameter sigWidth   = 4,
   parameter low_expand = 2

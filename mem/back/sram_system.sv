@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module sram_system #(
     parameter type sfp_t = logic [`SFP_WIDTH-1:0],
     parameter AddrLWidth = 7,

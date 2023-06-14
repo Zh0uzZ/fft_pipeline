@@ -1,4 +1,4 @@
-`include "parameter.vh"
+`include "../include/parameter.vh"
 module WROM32(CLK,RST,START, STAGE ,OR,OI,RDY);
     `FFTsfpw
     input CLK,RST,START,STAGE;
@@ -94,7 +94,7 @@ module WROM32(CLK,RST,START, STAGE ,OR,OI,RDY);
                 count_o <= 0;
                 count <= 0;
             end
-                // RDY <= 1;  
+                // RDY <= 1;
             if(count == 2'b11)
                 count_o <= count_o + 1;
             case(STAGE)

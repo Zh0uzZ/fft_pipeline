@@ -1,5 +1,5 @@
 `define SIGNED_WIDTH (sigWidth+4+low_expand)
-module HADAMARD #(
+module HADAMARD #(  //1244 LUT  595FF
     parameter expWidth    = 4,
     parameter sigWidth    = 4,
     parameter formatWidth = 9,
@@ -84,18 +84,18 @@ module HADAMARD #(
   assign  output_real = {sfpout[3], sfpout[2], sfpout[1], sfpout[0]};
   assign  output_imag = {sfpout[7], sfpout[6], sfpout[5], sfpout[4]};
 
-  //ready signal 
-  reg [3:0] count_r;
+  //ready signal
+  reg [1:0] count_r;
   always@(posedge clk or negedge rst) begin
     if(~rst) begin
-      count_r <= 3'b111;
+      count_r <= 2'b11;
     end else if (start) begin
       count_r <= 0;
     end else begin
       hadamard_done <= 0;
-      if(count_r != 3'b111)
+      if(count_r != 2'b11)
         count_r <= count_r + 1;
-      if(count_r == 3'b10) 
+      if(count_r == 2'b10)
         hadamard_done <= 1;
     end
   end
@@ -164,7 +164,7 @@ module HADAMARD #(
           .expWidth(expWidth)
       ) u_exp_normalizer (
           .input_exp({
-            sfp_real_reg[formatWidth*(j+1)-2-:expWidth], 
+            sfp_real_reg[formatWidth*(j+1)-2-:expWidth],
             sfp_real_reg[formatWidth*(j+5)-2-:expWidth]
           }),
           .max_exp(max_exp[j]),
@@ -179,7 +179,7 @@ module HADAMARD #(
           .expWidth(expWidth)
       ) u_exp_normalizer (
           .input_exp({
-            sfp_imag_reg[formatWidth*(j+1)-2-:expWidth], 
+            sfp_imag_reg[formatWidth*(j+1)-2-:expWidth],
             sfp_imag_reg[formatWidth*(j+5)-2-:expWidth]
           }),
           .max_exp(max_exp[j+4]),
