@@ -1,4 +1,6 @@
 {
     "files.trimTrailingWhitespace": true,
-    "editor.detectIndentation": false
+    "editor.detectIndentation": false,
+    "systemverilogFormatter.veribleBuild": "none",
+    "systemverilog.formatCommand": "verible-verilog-format"
 }

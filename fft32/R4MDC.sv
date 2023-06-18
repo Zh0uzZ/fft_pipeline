@@ -58,6 +58,23 @@ parameter nb = `SFP_WIDTH;
         .output_imag  (di2),
         .hadamard_done(rdy2)
     );
+    HADAMARD_1 #(
+        .expWidth   (`EXPWIDTH),
+        .sigWidth   (`SIGWIDTH),
+        .formatWidth(`SFPWIDTH),
+        .low_expand (`LOW_EXPAND)
+    ) U_HADAMARD0 (
+        .clk          (clk_i),
+        .rst          (rst_ni),
+        .start        (rdy1),
+        .input_real   (dr1),
+        .input_imag   (di1),
+        .twiddle_real (tr0),
+        .twiddle_imag (ti0),
+        .output_real  (dr2),
+        .output_imag  (di2),
+        .hadamard_done(rdy2)
+    );
     commutator4 #(.stage(2)) u0_commutator4_real(
         .clk(clk_i), .reset_n(rst_ni), .start(rdy2), .input_data(dr2), .output_data(dr3), .done(rdy3)
     );

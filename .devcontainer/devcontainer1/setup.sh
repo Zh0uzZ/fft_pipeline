@@ -16,3 +16,4 @@ export PATH=$PATH:/opt/verible/bin
 export PATH=$PATH:/home/vscode/.local/bin
 
 # conda create -n cgra_repos python=3.8 -y && echo "conda activate cgra_repos" >> ~/.bashrc
+alias testbench="python /home/vscode/.vscode-server/extensions/truecrab.verilog-testbench-instance-0.0.5/out/vTbgenerator.py"

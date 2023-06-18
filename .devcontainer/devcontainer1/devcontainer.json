@@ -9,7 +9,8 @@
                 "eirikpre.systemverilog",
                 "ms-vscode.cpptools",
                 "ms-vscode.makefile-tools",
-                "ms-vscode.cpptools-extension-pack"
+                "ms-vscode.cpptools-extension-pack",
+                "Truecrab.verilog-testbench-instance"
             ]
         }
     },
